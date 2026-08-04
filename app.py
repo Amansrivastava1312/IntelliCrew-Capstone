@@ -11,9 +11,6 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
-
-from db_chatbot.agent import ask_agent
-from db_chatbot.tools import schema_tool
 from security import verify_password
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -112,20 +109,6 @@ def logout(response: Response, sid: str | None = Cookie(None, alias=COOKIE)):
     SESSIONS.pop(sid, None) if sid else None
     response.delete_cookie(COOKIE, path="/")
     return {"message": "Logged out.", "redirect_url": "/"}
-
-
-# ---------- text-to-SQL API ----------
-@app.post("/api/query")
-def query(payload: QueryRequest, sid: str | None = Cookie(None, alias=COOKIE)):
-    require_session(sid)
-    return ask_agent(payload.question.strip())
-
-
-@app.get("/api/schema")
-def schema(sid: str | None = Cookie(None, alias=COOKIE)):
-    require_session(sid)
-    return {"schema": schema_tool()}
-
 
 @app.get("/api/me")
 def current_user(sid: str | None = Cookie(None, alias=COOKIE)):
