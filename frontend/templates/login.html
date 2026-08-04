@@ -10,7 +10,7 @@
 
   <meta
     name="description"
-    content="IntelliCrew employee and manager login portal"
+    content="IntelliCrew manager and HR login portal"
   >
 
   <title>IntelliCrew | Login</title>
@@ -443,7 +443,7 @@
     class="navbar"
     aria-label="Primary navigation"
   >
-    
+   
       <span
         class="brand-mark"
         aria-hidden="true"
@@ -454,8 +454,7 @@
       
     </a>
 
-    
-      Home
+   Home
     </a>
   </nav>
 
@@ -502,12 +501,12 @@
                 Select login type
               </option>
 
-              <option value="employee">
-                Employee Login
-              </option>
-
               <option value="manager">
                 Manager Login
+              </option>
+
+              <option value="hr">
+                HR Login
               </option>
             </select>
 
@@ -531,9 +530,9 @@
               name="user_id"
               type="text"
               maxlength="4"
-              pattern="[EMem][0-9]{3}"
-              title="Enter an ID such as E001 or M001"
-              placeholder="Enter E001 or M001"
+              pattern="[MHmh][0-9]{3}"
+              title="Enter an ID such as M001 or H001"
+              placeholder="Enter M001 or H001"
               autocomplete="username"
               required
             >
@@ -652,10 +651,10 @@
     loginRole.addEventListener("change", () => {
       clearMessage();
 
-      if (loginRole.value === "employee") {
-        userIdInput.placeholder = "Enter E001";
-      } else if (loginRole.value === "manager") {
+      if (loginRole.value === "manager") {
         userIdInput.placeholder = "Enter M001";
+      } else if (loginRole.value === "hr") {
+        userIdInput.placeholder = "Enter H001";
       }
     });
 
@@ -700,19 +699,10 @@
       }
 
       const loginType = loginRole.value;
-      const userId = userIdInput.value.trim().toUpperCase();
+      const userId = userIdInput.value
+        .trim()
+        .toUpperCase();
       const password = passwordInput.value;
-
-      if (
-        loginType === "employee" &&
-        !/^E\d{3}$/.test(userId)
-      ) {
-        showMessage(
-          "Employee ID must use the E001 format."
-        );
-        userIdInput.focus();
-        return;
-      }
 
       if (
         loginType === "manager" &&
@@ -720,6 +710,17 @@
       ) {
         showMessage(
           "Manager ID must use the M001 format."
+        );
+        userIdInput.focus();
+        return;
+      }
+
+      if (
+        loginType === "hr" &&
+        !/^H\d{3}$/.test(userId)
+      ) {
+        showMessage(
+          "HR ID must use the H001 format."
         );
         userIdInput.focus();
         return;
@@ -751,7 +752,8 @@
 
         if (!response.ok) {
           throw new Error(
-            data.detail || "Login failed. Please try again."
+            data.detail ||
+            "Login failed. Please try again."
           );
         }
 

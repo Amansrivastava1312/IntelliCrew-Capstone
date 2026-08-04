@@ -27,7 +27,7 @@ SESSIONS: dict[str, dict] = {}
 
 # ---------- models ----------
 class LoginRequest(BaseModel):
-    login_type: Literal["employee", "manager"]
+    login_type: Literal["manager", "hr"]
     user_id: str = Field(min_length=4, max_length=4)
     password: str = Field(min_length=1, max_length=128)
 
@@ -76,8 +76,17 @@ def home(request: Request, sid: str | None = Cookie(None, alias=COOKIE)):
 @app.post("/api/login")
 def login(payload: LoginRequest, response: Response):
     uid = payload.user_id.strip().upper()
-    prefix, role, table = (("E", "EMPLOYEE", "employees") if payload.login_type == "employee"
-                           else ("M", "MANAGER", "managers"))
+
+    if payload.login_type == "manager":
+        prefix = "M"
+        role = "MANAGER"
+        table = "manager"
+        id_column = "manager_id"
+    else:
+        prefix = "H"
+        role = "HR"
+        table = "hr"
+        id_column = "hr_id"
 
     if not (uid.startswith(prefix) and uid[1:].isdigit()):
         raise HTTPException(400, f"ID must use the {prefix}001 format.")
@@ -85,13 +94,16 @@ def login(payload: LoginRequest, response: Response):
     with sqlite3.connect(DATABASE_FILE) as conn:
         conn.row_factory = sqlite3.Row
         record = conn.execute(
-            f"SELECT id, name, password_hash, is_active FROM {table} WHERE id = ?", (uid,)
+            f"""
+            SELECT {id_column} AS id, full_name AS name, password_hash
+            FROM {table}
+            WHERE {id_column} = ?
+            """,
+            (uid,),
         ).fetchone()
 
     if record is None or not verify_password(payload.password, record["password_hash"]):
         raise HTTPException(401, "Invalid login type, ID, or password.")
-    if not record["is_active"]:
-        raise HTTPException(403, "This account is inactive.")
 
     sid = secrets.token_urlsafe(32)
     SESSIONS[sid] = {
@@ -109,6 +121,7 @@ def logout(response: Response, sid: str | None = Cookie(None, alias=COOKIE)):
     SESSIONS.pop(sid, None) if sid else None
     response.delete_cookie(COOKIE, path="/")
     return {"message": "Logged out.", "redirect_url": "/"}
+
 
 @app.get("/api/me")
 def current_user(sid: str | None = Cookie(None, alias=COOKIE)):
