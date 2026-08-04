@@ -1,0 +1,266 @@
+<style>
+:root {
+    --bg: #f8f6fc;
+    --surface: #ffffff;
+    --primary: #b39ddb;
+    --primary-hover: #9f8bc8;
+    --primary-light: #ede7f6;
+    --text: #4f4a5a;
+    --muted: #8f88a0;
+    --line: #e9e2f3;
+    --success: #5f9f7c;
+    --error: #c06c84;
+}
+
+.page-title {
+    text-align: center;
+    font-size: 30px;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.page-sub {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 30px;
+}
+
+.card {
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 35px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(94,75,128,.08);
+}
+
+.upload-box {
+    border: 2px dashed #d7caec;
+    border-radius: 20px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: #fcfbff;
+    transition: .25s;
+}
+
+.upload-box:hover,
+.upload-box.dragover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+
+.upload-icon {
+    font-size: 56px;
+    margin-bottom: 8px;
+}
+
+.upload-box h3 {
+    margin: 0;
+    color: var(--text);
+}
+
+.upload-box p {
+    color: var(--muted);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.id-block {
+    background: #fff7f8;
+    border: 1px solid #f3d3dc;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.id-block p {
+    color: var(--error);
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.primary {
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    background: var(--primary);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary:hover {
+    background: var(--primary-hover);
+}
+
+.file-name {
+    margin-top: 12px;
+    text-align: center;
+    color: var(--success);
+}
+
+#resumeResult {
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #f8f6fc;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+</style>
+
+<h1 class="page-title">Upload Resume</h1>
+
+<p class="page-sub">
+    Upload a PDF/DOCX resume. The agent extracts everything automatically.
+</p>
+
+<form id="resumeForm" class="card">
+
+    <div id="idBlock" class="id-block" hidden>
+        <p>⚠️ No Employee ID found in the resume. Please enter it manually.</p>
+
+        <label for="employeeId">Employee ID</label>
+
+        <input
+            type="text"
+            id="employeeId"
+            name="employee_id"
+            placeholder="e.g. EMP001"
+        />
+    </div>
+
+    <label id="uploadBox" class="upload-box" for="resumeFile">
+
+        <div class="upload-icon">📄</div>
+
+        <h3>Upload Resume</h3>
+
+        <p>Drag & Drop or Click to Browse</p>
+
+        <input
+            type="file"
+            id="resumeFile"
+            name="file"
+            accept=".pdf,.docx"
+            required
+        />
+    </label>
+
+    <p id="fileName" class="file-name" hidden></p>
+
+    <button class="primary" type="submit">
+        Process Resume
+    </button>
+
+    <div id="resumeResult"></div>
+
+</form>
+
+<script>
+const resumeForm = document.getElementById("resumeForm");
+
+if (resumeForm) {
+
+    const resumeResult = document.getElementById("resumeResult");
+    const idBlock = document.getElementById("idBlock");
+    const employeeId = document.getElementById("employeeId");
+
+    const resumeFile = document.getElementById("resumeFile");
+    const uploadBox = document.getElementById("uploadBox");
+    const fileName = document.getElementById("fileName");
+
+    resumeFile.addEventListener("change", () => {
+
+        if (resumeFile.files.length) {
+            fileName.textContent =
+                "Selected file: " + resumeFile.files[0].name;
+
+            fileName.hidden = false;
+        }
+    });
+
+    ["dragenter", "dragover"].forEach(eventName => {
+        uploadBox.addEventListener(eventName, event => {
+            event.preventDefault();
+            uploadBox.classList.add("dragover");
+        });
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+        uploadBox.addEventListener(eventName, event => {
+            event.preventDefault();
+            uploadBox.classList.remove("dragover");
+        });
+    });
+
+    uploadBox.addEventListener("drop", event => {
+
+        const files = event.dataTransfer.files;
+
+        if (files.length) {
+            resumeFile.files = files;
+            resumeFile.dispatchEvent(
+                new Event("change")
+            );
+        }
+    });
+
+    resumeForm.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        resumeResult.textContent = "Processing...";
+
+        const data = new FormData(resumeForm);
+
+        const res = await fetch("/api/process-resume", {
+            method: "POST",
+            credentials: "same-origin",
+            body: data
+        });
+
+        const json = await res.json();
+
+        if (json.status === "need_employee_id") {
+
+            idBlock.hidden = false;
+            employeeId.required = true;
+            employeeId.focus();
+
+            resumeResult.textContent =
+                "Please enter the Employee ID above, then click Process again.";
+
+            return;
+        }
+
+        idBlock.hidden = true;
+        employeeId.required = false;
+
+        resumeResult.textContent =
+            JSON.stringify(json, null, 2);
+    });
+}
+</script>
