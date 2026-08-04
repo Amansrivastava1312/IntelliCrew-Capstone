@@ -1,22 +1,32 @@
-"""IntelliCrew — Login + Agentic Text-to-SQL (minimal)."""
+"""IntelliCrew — Login + HR Resume Upload (single app)."""
 
+import os
+import shutil
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
-from fastapi import Cookie, FastAPI, HTTPException, Request, Response, status
+from fastapi import (
+    Cookie, FastAPI, HTTPException, Request, Response, status,
+    UploadFile, File, Form,
+)
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from security import verify_password
 
+from Emp_DataAgent.resume_agent import resume_agent          # compiled LangGraph agent
+
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE_FILE = BASE_DIR / "data" / "employee_records.db"
 COOKIE = "intellicrew_session_id"
 HOURS = 8
+
+UPLOAD_DIR = BASE_DIR / "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = FastAPI(title="IntelliCrew")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "frontend" / "static")), name="static")
@@ -78,15 +88,9 @@ def login(payload: LoginRequest, response: Response):
     uid = payload.user_id.strip().upper()
 
     if payload.login_type == "manager":
-        prefix = "M"
-        role = "MANAGER"
-        table = "manager"
-        id_column = "manager_id"
+        prefix, role, table, id_column = "M", "MANAGER", "manager", "manager_id"
     else:
-        prefix = "H"
-        role = "HR"
-        table = "hr"
-        id_column = "hr_id"
+        prefix, role, table, id_column = "H", "HR", "hr", "hr_id"
 
     if not (uid.startswith(prefix) and uid[1:].isdigit()):
         raise HTTPException(400, f"ID must use the {prefix}001 format.")
@@ -127,3 +131,50 @@ def logout(response: Response, sid: str | None = Cookie(None, alias=COOKIE)):
 def current_user(sid: str | None = Cookie(None, alias=COOKIE)):
     s = require_session(sid)
     return {"user_id": s["user_id"], "name": s["name"], "role": s["role"]}
+
+
+# ---------- resume agent API (HR only) ----------
+@app.post("/api/process-resume")
+async def process_resume(
+    file: UploadFile = File(...),
+    employee_id: Optional[str] = Form(None),      # only on re-submit
+    sid: str | None = Cookie(None, alias=COOKIE),
+):
+    s = require_session(sid)
+    if s["role"] != "HR":
+        raise HTTPException(403, "Only HR can upload resumes.")
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    temp_path = os.path.join(UPLOAD_DIR, f"_tmp_{file.filename}")
+    with open(temp_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    # only file_path + optional employee_id are seeded now
+    state = {
+        "file_path": temp_path,
+        "raw_text": "",
+        "extracted": {"employee_id": employee_id} if employee_id else {},
+        "employee_id": None,
+        "status": "started",
+    }
+    result = resume_agent.invoke(state)
+
+    if result["status"] == "need_employee_id":
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        return {"status": "need_employee_id",
+                "message": "No Employee ID found in the resume. Please enter it manually."}
+
+    final_emp_id = result.get("employee_id")
+    final_path = os.path.join(UPLOAD_DIR, f"{final_emp_id}{ext}")
+    if os.path.exists(final_path):
+        os.remove(final_path)
+    os.rename(temp_path, final_path)
+
+    return {
+        "status": result["status"],
+        "employee_id": final_emp_id,
+        "full_name": result["extracted"].get("full_name"),
+        "designation": result["extracted"].get("designation"),
+        "skills_found": len(result.get("extracted", {}).get("skills", [])),
+    }
