@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="IntelliCrew employee and manager login portal"
+  >
+
+  <title>IntelliCrew | Login</title>
+
+  <style>
+    :root {
+      --page-background: #f8f7fc;
+      --card-background: rgba(255, 255, 255, 0.92);
+      --primary: #8b7fc8;
+      --primary-hover: #786bb7;
+      --primary-light: #eeebfb;
+      --peach: #f9e8df;
+      --mint: #e5f3ee;
+      --lavender: #eeeafb;
+      --text-primary: #343248;
+      --text-secondary: #77738a;
+      --border: #e5e1ef;
+      --input-background: #fbfaff;
+      --error-background: #fff0f2;
+      --error-border: #f3c3ca;
+      --error-text: #9d3343;
+      --success-background: #ecf8f2;
+      --success-border: #bde0ce;
+      --success-text: #347459;
+      --shadow: 0 24px 60px rgba(94, 82, 143, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      color: var(--text-primary);
+      background:
+        radial-gradient(
+          circle at 12% 16%,
+          rgba(249, 232, 223, 0.9),
+          transparent 31%
+        ),
+        radial-gradient(
+          circle at 87% 18%,
+          rgba(229, 243, 238, 0.9),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 65% 88%,
+          rgba(238, 234, 251, 0.95),
+          transparent 34%
+        ),
+        var(--page-background);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .navbar {
+      width: 100%;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px clamp(20px, 5vw, 72px);
+      border-bottom: 1px solid rgba(225, 220, 237, 0.75);
+      background: rgba(255, 255, 255, 0.58);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--text-primary);
+      font-size: 18px;
+      font-weight: 750;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 39px;
+      height: 39px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 13px;
+      color: #ffffff;
+      background: linear-gradient(
+        145deg,
+        #9b90d4,
+        #7d70b9
+      );
+      box-shadow: 0 8px 20px rgba(125, 112, 185, 0.22);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .home-link {
+      padding: 9px 14px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 650;
+      transition:
+        color 160ms ease,
+        background 160ms ease;
+    }
+
+    .home-link:hover {
+      color: var(--primary-hover);
+      background: var(--primary-light);
+    }
+
+    main {
+      width: 100%;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 48px 20px;
+    }
+
+    .login-card {
+      width: min(100%, 440px);
+      padding: clamp(28px, 5vw, 42px);
+      border: 1px solid rgba(229, 225, 239, 0.9);
+      border-radius: 28px;
+      background: var(--card-background);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(17px);
+      -webkit-backdrop-filter: blur(17px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: #7064a6;
+      background: var(--primary-light);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #9184cb;
+      box-shadow: 0 0 0 4px rgba(145, 132, 203, 0.13);
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--text-primary);
+      font-size: clamp(30px, 7vw, 40px);
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 14px 0 30px;
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      margin: 0 0 8px;
+      color: #514e64;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap input,
+    .input-wrap select {
+      width: 100%;
+      min-height: 50px;
+      padding: 0 46px 0 15px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      outline: none;
+      color: var(--text-primary);
+      background: var(--input-background);
+      font-size: 15px;
+      transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        background 160ms ease;
+    }
+
+    .input-wrap select {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    .input-wrap input::placeholder {
+      color: #aaa6b8;
+    }
+
+    .input-wrap input:hover,
+    .input-wrap select:hover {
+      border-color: #cbc4e0;
+      background: #ffffff;
+    }
+
+    .input-wrap input:focus,
+    .input-wrap select:focus {
+      border-color: #9a8fd0;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(154, 143, 208, 0.13);
+    }
+
+    .field-icon {
+      position: absolute;
+      top: 50%;
+      right: 15px;
+      display: inline-grid;
+      place-items: center;
+      color: #9892ad;
+      font-size: 14px;
+      pointer-events: none;
+      transform: translateY(-50%);
+    }
+
+    .password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 9px;
+      color: #8e88a0;
+      background: transparent;
+      cursor: pointer;
+      transform: translateY(-50%);
+      transition:
+        color 160ms ease,
+        background 160ms ease;
+    }
+
+    .password-toggle:hover {
+      color: var(--primary-hover);
+      background: var(--primary-light);
+    }
+
+    .password-toggle:focus-visible {
+      outline: 3px solid rgba(139, 127, 200, 0.25);
+    }
+
+    .login-message {
+      margin: 2px 0 16px;
+      padding: 11px 13px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .login-message.error {
+      color: var(--error-text);
+      background: var(--error-background);
+      border-color: var(--error-border);
+    }
+
+    .login-message.success {
+      color: var(--success-text);
+      background: var(--success-background);
+      border-color: var(--success-border);
+    }
+
+    .login-button {
+      width: 100%;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 14px;
+      color: #ffffff;
+      background: linear-gradient(
+        135deg,
+        #9589cd,
+        #7d70bb
+      );
+      box-shadow: 0 12px 25px rgba(125, 112, 187, 0.24);
+      font-size: 15px;
+      font-weight: 750;
+      cursor: pointer;
+      transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        opacity 160ms ease;
+    }
+
+    .login-button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 15px 30px rgba(125, 112, 187, 0.3);
+    }
+
+    .login-button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .login-button:focus-visible {
+      outline: 4px solid rgba(139, 127, 200, 0.22);
+      outline-offset: 3px;
+    }
+
+    .login-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.68;
+      box-shadow: none;
+    }
+
+    .arrow {
+      font-size: 19px;
+      line-height: 1;
+      transition: transform 160ms ease;
+    }
+
+    .login-button:hover:not(:disabled) .arrow {
+      transform: translateX(3px);
+    }
+
+    .secure-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin: 20px 0 0;
+      color: #8b879a;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .secure-dot {
+      color: #85b8a4;
+      font-size: 9px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 560px) {
+      .navbar {
+        min-height: 64px;
+        padding: 12px 16px;
+      }
+
+      .brand {
+        font-size: 16px;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+      }
+
+      main {
+        align-items: start;
+        padding: 30px 15px;
+      }
+
+      .login-card {
+        padding: 28px 22px;
+        border-radius: 22px;
+      }
+
+      .home-link {
+        padding: 8px 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav
+    class="navbar"
+    aria-label="Primary navigation"
+  >
+    
+      <span
+        class="brand-mark"
+        aria-hidden="true"
+      >
+        IC
+      </span>
+
+      
+    </a>
+
+    
+      Home
+    </a>
+  </nav>
+
+  <main>
+    <section
+      class="login-card"
+      aria-labelledby="login-heading"
+    >
+      <div class="eyebrow">
+        <span
+          class="eyebrow-dot"
+          aria-hidden="true"
+        ></span>
+
+        Workforce portal
+      </div>
+
+      <h1 id="login-heading">
+        Welcome back
+      </h1>
+
+      <p class="subtitle">
+        Sign in securely to access your personalized
+        IntelliCrew workspace.
+      </p>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="loginRole">
+            Login type
+          </label>
+
+          <div class="input-wrap">
+            <select
+              id="loginRole"
+              name="login_type"
+              required
+            >
+              <option
+                value=""
+                selected
+                disabled
+              >
+                Select login type
+              </option>
+
+              <option value="employee">
+                Employee Login
+              </option>
+
+              <option value="manager">
+                Manager Login
+              </option>
+            </select>
+
+            <span
+              class="field-icon"
+              aria-hidden="true"
+            >
+              ▼
+            </span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="userId">
+            User ID
+          </label>
+
+          <div class="input-wrap">
+            <input
+              id="userId"
+              name="user_id"
+              type="text"
+              maxlength="4"
+              pattern="[EMem][0-9]{3}"
+              title="Enter an ID such as E001 or M001"
+              placeholder="Enter E001 or M001"
+              autocomplete="username"
+              required
+            >
+
+            <span
+              class="field-icon"
+              aria-hidden="true"
+            >
+              ID
+            </span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">
+            Password
+          </label>
+
+          <div class="input-wrap">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+              minlength="1"
+              maxlength="128"
+            >
+
+            <button
+              id="passwordToggle"
+              class="password-toggle"
+              type="button"
+              aria-label="Show password"
+              title="Show password"
+            >
+              ◉
+            </button>
+          </div>
+        </div>
+
+        <p
+          id="loginMessage"
+          class="login-message"
+          role="alert"
+          aria-live="polite"
+          hidden
+        ></p>
+
+        <button
+          id="loginButton"
+          class="login-button"
+          type="submit"
+        >
+          <span id="loginButtonText">
+            Login
+          </span>
+
+          <span
+            class="arrow"
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </button>
+
+        <p class="secure-note">
+          <span
+            class="secure-dot"
+            aria-hidden="true"
+          >
+            ●
+          </span>
+
+          Secure access to your IntelliCrew account
+        </p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const loginRole = document.getElementById("loginRole");
+    const userIdInput = document.getElementById("userId");
+    const passwordInput = document.getElementById("password");
+    const passwordToggle = document.getElementById(
+      "passwordToggle"
+    );
+    const loginButton = document.getElementById("loginButton");
+    const loginButtonText = document.getElementById(
+      "loginButtonText"
+    );
+    const loginMessage = document.getElementById("loginMessage");
+
+    function showMessage(message, type = "error") {
+      loginMessage.textContent = message;
+      loginMessage.className = `login-message ${type}`;
+      loginMessage.hidden = false;
+    }
+
+    function clearMessage() {
+      loginMessage.textContent = "";
+      loginMessage.className = "login-message";
+      loginMessage.hidden = true;
+    }
+
+    function setLoading(isLoading) {
+      loginButton.disabled = isLoading;
+
+      loginButtonText.textContent = isLoading
+        ? "Signing in..."
+        : "Login";
+    }
+
+    loginRole.addEventListener("change", () => {
+      clearMessage();
+
+      if (loginRole.value === "employee") {
+        userIdInput.placeholder = "Enter E001";
+      } else if (loginRole.value === "manager") {
+        userIdInput.placeholder = "Enter M001";
+      }
+    });
+
+    userIdInput.addEventListener("input", () => {
+      userIdInput.value = userIdInput.value
+        .toUpperCase()
+        .replace(/\s/g, "")
+        .slice(0, 4);
+
+      clearMessage();
+    });
+
+    passwordInput.addEventListener("input", clearMessage);
+
+    passwordToggle.addEventListener("click", () => {
+      const passwordIsHidden =
+        passwordInput.type === "password";
+
+      passwordInput.type = passwordIsHidden
+        ? "text"
+        : "password";
+
+      passwordToggle.setAttribute(
+        "aria-label",
+        passwordIsHidden
+          ? "Hide password"
+          : "Show password"
+      );
+
+      passwordToggle.title = passwordIsHidden
+        ? "Hide password"
+        : "Show password";
+    });
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      if (!loginForm.checkValidity()) {
+        loginForm.reportValidity();
+        return;
+      }
+
+      const loginType = loginRole.value;
+      const userId = userIdInput.value.trim().toUpperCase();
+      const password = passwordInput.value;
+
+      if (
+        loginType === "employee" &&
+        !/^E\d{3}$/.test(userId)
+      ) {
+        showMessage(
+          "Employee ID must use the E001 format."
+        );
+        userIdInput.focus();
+        return;
+      }
+
+      if (
+        loginType === "manager" &&
+        !/^M\d{3}$/.test(userId)
+      ) {
+        showMessage(
+          "Manager ID must use the M001 format."
+        );
+        userIdInput.focus();
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            login_type: loginType,
+            user_id: userId,
+            password: password
+          })
+        });
+
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail || "Login failed. Please try again."
+          );
+        }
+
+        showMessage(
+          data.message || "Login successful.",
+          "success"
+        );
+
+        window.location.replace(
+          data.redirect_url || "/home"
+        );
+      } catch (error) {
+        showMessage(
+          error.message ||
+          "Unable to connect to the server."
+        );
+
+        passwordInput.value = "";
+        passwordInput.type = "password";
+        passwordInput.focus();
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>

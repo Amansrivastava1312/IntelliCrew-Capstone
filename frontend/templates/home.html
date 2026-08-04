@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>IntelliCrew | Home</title>
+
+  <style>
+    :root {
+      --bg: #f7f6fb;
+      --sidebar: #eae6f5;
+      --card: #ffffff;
+      --accent: #b7a5e0;
+      --accent-hover: #a48fd6;
+      --text: #4a4658;
+      --muted: #8b869c;
+      --line: #e3dff0;
+      --error: #a84c5b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      color: var(--text);
+      background: var(--bg);
+      font-family:
+        "Segoe UI",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .sidebar {
+      width: 30%;
+      max-width: 320px;
+      min-width: 240px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 20px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line);
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .brand span {
+      color: #9079c6;
+    }
+
+    .role-tag {
+      margin: 4px 0 28px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: capitalize;
+    }
+
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 12px;
+      color: var(--text);
+      background: transparent;
+      font-size: 15px;
+      text-align: left;
+      cursor: pointer;
+      transition:
+        color 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: #ffffff;
+    }
+
+    .nav-item.active {
+      color: #ffffff;
+      background: var(--accent);
+      font-weight: 600;
+    }
+
+    .logout {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: auto;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--muted);
+      background: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+      transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .logout:hover:not(:disabled) {
+      color: var(--error);
+      border-color: #efd4da;
+      background: #fff7f8;
+    }
+
+    .logout:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .page-title {
+      margin-bottom: 6px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-sub {
+      margin-bottom: 26px;
+      color: var(--muted);
+    }
+
+    .card {
+      margin-bottom: 20px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      background: #fbfaff;
+      font-size: 14px;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(183, 165, 224, 0.18);
+    }
+
+    button.primary {
+      margin-top: 12px;
+      padding: 11px 20px;
+      border: 0;
+      border-radius: 10px;
+      color: #ffffff;
+      background: var(--accent);
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    button.primary:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    pre {
+      margin-top: 8px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #f4f2fb;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .answer-title {
+      display: block;
+      margin-top: 16px;
+    }
+
+    .answer-title:first-child {
+      margin-top: 0;
+    }
+
+    .error-message {
+      color: var(--error);
+    }
+
+    @media (max-width: 760px) {
+      body {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        min-height: auto;
+        padding: 20px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .role-tag {
+        margin-bottom: 18px;
+      }
+
+      .logout {
+        margin-top: 16px;
+      }
+
+      .content {
+        padding: 28px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar rendered using Jinja2 -->
+  <aside class="sidebar">
+    <div class="brand">
+      Intelli<span>Crew</span>
+    </div>
+
+    <div class="role-tag">
+      Role: {{ userType }}
+    </div>
+
+    <nav aria-label="Dashboard navigation">
+      <button
+        class="nav-item active"
+        type="button"
+        data-page="dashboard"
+      >
+        <span aria-hidden="true">🏠</span>
+        Dashboard
+      </button>
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page="resume"
+      >
+        <span aria-hidden="true">📄</span>
+        Resume Analyzer
+      </button>
+
+      <button
+        class="nav-item"
+        type="button"
+        data-page="skillgap"
+      >
+        <span aria-hidden="true">📊</span>
+        Skill Gap
+      </button>
+
+      {% if userType == "manager" %}
+      <button
+        class="nav-item"
+        type="button"
+        data-page="chatbot"
+      >
+        <span aria-hidden="true">💬</span>
+        DB Chatbot
+      </button>
+      {% endif %}
+    </nav>
+
+    <button
+      id="logoutButton"
+      class="logout"
+      type="button"
+    >
+      <span aria-hidden="true">↩</span>
+      <span id="logoutButtonText">Logout</span>
+    </button>
+  </aside>
+
+  <!-- Main page content -->
+  <main
+    class="content"
+    id="content"
+  ></main>
+
+  <script>
+    const userType = "{{ userType }}";
+
+    const content = document.getElementById("content");
+    const logoutButton = document.getElementById("logoutButton");
+    const logoutButtonText = document.getElementById(
+      "logoutButtonText"
+    );
+
+    const PAGES = {
+      dashboard: () => `
+        <div class="page-title">Dashboard</div>
+
+        <div class="page-sub">
+          Welcome back to IntelliCrew.
+        </div>
+
+        <div class="card">
+          <p>
+            Welcome, {{ userName }}.
+          </p>
+
+          <p>
+            User ID: {{ userId }}
+          </p>
+
+          <p>
+            Role: ${userType}
+          </p>
+        </div>
+      `,
+
+      resume: () => `
+        <div class="page-title">Resume Analyzer</div>
+
+        <div class="page-sub">
+          Upload a resume to get a match score.
+        </div>
+
+        <div class="card">
+          <input
+            type="file"
+            aria-label="Upload resume"
+          >
+
+          <button
+            class="primary"
+            type="button"
+          >
+            Analyze
+          </button>
+        </div>
+      `,
+
+      skillgap: () => `
+        <div class="page-title">Skill Gap</div>
+
+        <div class="page-sub">
+          See gaps against required skills.
+        </div>
+
+        <div class="card">
+          Skill gap report goes here.
+        </div>
+      `,
+
+      chatbot: () => `
+        <div class="page-title">DB Chatbot</div>
+
+        <div class="page-sub">
+          Ask your database in plain English.
+        </div>
+
+        <div class="card">
+          <textarea
+            id="questionInput"
+            rows="3"
+            placeholder="For example: Which employees know Python?"
+          ></textarea>
+
+          <button
+            id="askButton"
+            class="primary"
+            type="button"
+            onclick="askDB()"
+          >
+            Ask
+          </button>
+        </div>
+
+        <div
+          class="card"
+          id="answer"
+          hidden
+        ></div>
+      `
+    };
+
+    function selectPage(pageId, selectedElement) {
+      const pageRenderer = PAGES[pageId];
+
+      if (!pageRenderer) {
+        return;
+      }
+
+      document
+        .querySelectorAll(".nav-item")
+        .forEach((navItem) => {
+          navItem.classList.remove("active");
+        });
+
+      if (selectedElement) {
+        selectedElement.classList.add("active");
+      }
+
+      content.innerHTML = pageRenderer();
+    }
+
+    document
+      .querySelectorAll(".nav-item")
+      .forEach((navItem) => {
+        navItem.addEventListener("click", () => {
+          selectPage(
+            navItem.dataset.page,
+            navItem
+          );
+        });
+      });
+
+    async function askDB() {
+      const questionInput = document.getElementById(
+        "questionInput"
+      );
+      const answerBox = document.getElementById("answer");
+      const askButton = document.getElementById("askButton");
+      const question = questionInput.value.trim();
+
+      if (!question) {
+        answerBox.hidden = false;
+        answerBox.textContent = "Please enter a question.";
+        answerBox.classList.add("error-message");
+        questionInput.focus();
+        return;
+      }
+
+      askButton.disabled = true;
+      askButton.textContent = "Processing...";
+
+      answerBox.hidden = false;
+      answerBox.classList.remove("error-message");
+      answerBox.textContent = "Processing your question...";
+
+      try {
+        const response = await fetch("/api/query", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question: question
+          })
+        });
+
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (response.status === 401) {
+          window.location.replace("/");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail ||
+            data.error ||
+            "Unable to process the question."
+          );
+        }
+
+        answerBox.innerHTML = "";
+
+        const sqlTitle = document.createElement("strong");
+        sqlTitle.className = "answer-title";
+        sqlTitle.textContent = "SQL";
+
+        const sqlOutput = document.createElement("pre");
+        sqlOutput.textContent = data.sql || "-";
+
+        const answerTitle = document.createElement("strong");
+        answerTitle.className = "answer-title";
+        answerTitle.textContent = "Answer";
+
+        const answerOutput = document.createElement("pre");
+        answerOutput.textContent =
+          data.answer ||
+          JSON.stringify(data.rows || data, null, 2);
+
+        answerBox.append(
+          sqlTitle,
+          sqlOutput,
+          answerTitle,
+          answerOutput
+        );
+      } catch (error) {
+        answerBox.classList.add("error-message");
+        answerBox.textContent =
+          error.message ||
+          "Unable to connect to the server.";
+      } finally {
+        askButton.disabled = false;
+        askButton.textContent = "Ask";
+      }
+    }
+
+    async function logout() {
+      logoutButton.disabled = true;
+      logoutButtonText.textContent = "Logging out...";
+
+      try {
+        const response = await fetch("/api/logout", {
+          method: "POST",
+          credentials: "same-origin"
+        });
+
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail || "Logout failed."
+          );
+        }
+
+        window.location.replace(
+          data.redirect_url || "/"
+        );
+      } catch (error) {
+        console.error("Logout failed:", error);
+
+        /*
+         * Return to the login page even if the logout request
+         * cannot be completed. A protected home route will reject
+         * access if no valid server session exists.
+         */
+        window.location.replace("/");
+      }
+    }
+
+    logoutButton.addEventListener("click", logout);
+
+    const defaultNavigationItem = document.querySelector(
+      '[data-page="dashboard"]'
+    );
+
+    selectPage(
+      "dashboard",
+      defaultNavigationItem
+    );
+  </script>
+</body>
+</html>
