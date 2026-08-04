@@ -1,6 +1,6 @@
 """Password security helpers for IntelliCrew.
 
-Passwords created by seed_data.py are stored as:
+Passwords created by data_seed.py are stored as:
     scrypt$<salt_hex>$<digest_hex>
 
 Password hashing is one-way. There is deliberately no decrypt_password()
@@ -12,16 +12,23 @@ import hmac
 import secrets
 
 
+SCRYPT_N = 2**14
+SCRYPT_R = 8
+SCRYPT_P = 1
+SCRYPT_DKLEN = 64
+SALT_SIZE = 16
+
+
 def hash_password(plain_password: str) -> str:
     """Create a salted scrypt hash for a new or changed password."""
-    salt = secrets.token_bytes(16)
+    salt = secrets.token_bytes(SALT_SIZE)
     digest = hashlib.scrypt(
         plain_password.encode("utf-8"),
         salt=salt,
-        n=2**14,
-        r=8,
-        p=1,
-        dklen=64,
+        n=SCRYPT_N,
+        r=SCRYPT_R,
+        p=SCRYPT_P,
+        dklen=SCRYPT_DKLEN,
     )
     return f"scrypt${salt.hex()}${digest.hex()}"
 
@@ -36,10 +43,10 @@ def verify_password(plain_password: str, stored_hash: str) -> bool:
         actual_digest = hashlib.scrypt(
             plain_password.encode("utf-8"),
             salt=bytes.fromhex(salt_hex),
-            n=2**14,
-            r=8,
-            p=1,
-            dklen=64,
+            n=SCRYPT_N,
+            r=SCRYPT_R,
+            p=SCRYPT_P,
+            dklen=SCRYPT_DKLEN,
         )
         return hmac.compare_digest(
             actual_digest.hex(),

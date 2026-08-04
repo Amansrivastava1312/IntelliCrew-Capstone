@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from security import verify_password
 
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE_FILE = BASE_DIR / "data" / "employees.db"
+DATABASE_FILE = BASE_DIR / "data" / "employee_records.db"
 COOKIE = "intellicrew_session_id"
 HOURS = 8
 
