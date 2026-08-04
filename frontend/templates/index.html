@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IntelliCrew</title>
+<style>
+  :root {
+    --bg:#f7f6fb; --sidebar:#eae6f5; --card:#fff;
+    --accent:#b7a5e0; --text:#4a4658; --muted:#8b869c; --line:#e3dff0;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Segoe UI',system-ui,sans-serif;
+    background:var(--bg); color:var(--text);
+    display:flex; height:100vh;
+  }
+  .sidebar {
+    width:30%; max-width:320px; background:var(--sidebar);
+    padding:28px 20px; display:flex; flex-direction:column;
+    border-right:1px solid var(--line);
+  }
+  .brand { font-size:20px; font-weight:700; }
+  .brand span { color:var(--accent); }
+  .role-tag { font-size:12px; color:var(--muted); margin:4px 0 28px; }
+  .nav-item {
+    display:flex; align-items:center; gap:10px;
+    padding:12px 14px; margin-bottom:8px; border-radius:12px;
+    cursor:pointer; font-size:15px; transition:all .2s ease;
+  }
+  .nav-item:hover { background:#fff; }
+  .nav-item.active { background:var(--accent); color:#fff; font-weight:600; }
+  .logout {
+    margin-top:auto; padding:12px 14px; border-radius:12px;
+    background:#fff; text-align:center; cursor:pointer;
+    font-size:14px; color:var(--muted);
+  }
+  .content { flex:1; padding:40px; overflow-y:auto; }
+  .page-title { font-size:24px; font-weight:700; margin-bottom:6px; }
+  .page-sub { color:var(--muted); margin-bottom:26px; }
+  .card {
+    background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:24px; margin-bottom:20px;
+  }
+  input, textarea {
+    width:100%; padding:12px 14px; border:1px solid var(--line);
+    border-radius:10px; font-size:14px; outline:none; background:#fbfaff;
+  }
+  input:focus, textarea:focus { border-color:var(--accent); }
+  button.primary {
+    margin-top:12px; padding:11px 20px; border:none; border-radius:10px;
+    background:var(--accent); color:#fff; font-size:14px; cursor:pointer;
+  }
+  button.primary:hover { background:#a48fd6; }
+  pre {
+    background:#f4f2fb; padding:14px; border-radius:10px;
+    font-size:13px; white-space:pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============ SIDEBAR (rendered by server) ============ -->
+  <aside class="sidebar">
+    <div class="brand">Intelli<span>Crew</span></div>
+    <div class="role-tag">Role: {{ userType }}</div>
+
+    <nav>
+      <!-- shown to everyone -->
+      <div class="nav-item active" onclick="select('dashboard', this)">🏠 Dashboard</div>
+      <div class="nav-item" onclick="select('resume', this)">📄 Resume Analyzer</div>
+      <div class="nav-item" onclick="select('skillgap', this)">📊 Skill Gap</div>
+
+      <!-- 🔒 manager only — Jinja2 decides server-side -->
+      {% if userType == "manager" %}
+      <div class="nav-item" onclick="select('chatbot', this)">💬 DB Chatbot</div>
+      {% endif %}
+    </nav>
+
+    <div class="logout" onclick="logout()">↩ Logout</div>
+  </aside>
+
+  <!-- ============ CONTENT ============ -->
+  <main class="content" id="content"></main>
+
+<script>
+  // userType comes from the server, injected by Jinja2
+  const userType = "{{ userType }}";
+
+  const PAGES = {
+    dashboard: () => `
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Welcome back to IntelliCrew.</div>
+      <div class="card">Workspace overview goes here.</div>`,
+
+    resume: () => `
+      <div class="page-title">Resume Analyzer</div>
+      <div class="page-sub">Upload a resume to get a match score.</div>
+      <div class="card">
+        <input type="file" />
+        <button class="primary">Analyze</button>
+      </div>`,
+
+    skillgap: () => `
+      <div class="page-title">Skill Gap</div>
+      <div class="page-sub">See gaps against required skills.</div>
+      <div class="card">Skill gap report goes here.</div>`,
+
+    chatbot: () => `
+      <div class="page-title">DB Chatbot</div>
+      <div class="page-sub">Ask your database in plain English.</div>
+      <div class="card">
+        <textarea id="q" rows="2" placeholder="e.g. Which employees know Python?"></textarea>
+        <button class="primary" onclick="askDB()">Ask</button>
+      </div>
+      <div class="card" id="answer" style="display:none;"></div>`
+  };
+
+  function select(id, el) {
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+    if (el) el.classList.add("active");
+    document.getElementById("content").innerHTML = PAGES[id]();
+  }
+
+  async function askDB() {
+    const question = document.getElementById("q").value;
+    const box = document.getElementById("answer");
+
+    const res = await fetch("/api/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question })
+    });
+
+    const data = await res.json();
+    box.style.display = "block";
+    box.innerHTML = `
+      <b>SQL</b><pre>${data.sql || "-"}</pre>
+      <b>Answer</b><pre>${data.answer || JSON.stringify(data.rows, null, 2)}</pre>`;
+  }
+
+  function logout() { window.location.href = "/"; }
+
+  // default page on load
+  select("dashboard", document.querySelector(".nav-item"));
+</script>
+</body>
+</html>
