@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntelliCrew | HR Portal</title>
+  <title>IntelliCrew | Portal</title>
   <style>
     :root {
       --bg: #f7f6fb;
@@ -16,13 +16,12 @@
       --line: #e3dff0;
       --error: #a84c5b;
       --success: #34785a;
+      --warn-bg: #fff8f0;
+      --warn-line: #f0c8a0;
+      --warn-text: #a05a00;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
@@ -31,7 +30,7 @@
       font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    button, select { font: inherit; }
+    button, select, input { font: inherit; }
 
     .navbar {
       height: 72px;
@@ -44,11 +43,7 @@
       box-shadow: 0 2px 12px rgba(74, 70, 88, 0.05);
     }
 
-    .brand {
-      font-size: 21px;
-      font-weight: 750;
-    }
-
+    .brand { font-size: 21px; font-weight: 750; }
     .brand span { color: var(--accent); }
 
     .logout {
@@ -62,17 +57,12 @@
       cursor: pointer;
       transition: 0.2s ease;
     }
-
     .logout:hover:not(:disabled) {
       color: var(--error);
       border-color: #efd4da;
       background: #fff7f8;
     }
-
-    .logout:disabled {
-      cursor: not-allowed;
-      opacity: 0.65;
-    }
+    .logout:disabled { cursor: not-allowed; opacity: 0.65; }
 
     .layout {
       display: grid;
@@ -100,6 +90,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      margin-bottom: 12px;
       padding: 12px 14px;
       border: 0;
       border-radius: 11px;
@@ -110,11 +101,7 @@
       cursor: pointer;
       transition: 0.2s ease;
     }
-
-    .nav-item:hover,
-    .nav-item.active {
-      background: var(--accent-hover);
-    }
+    .nav-item:hover, .nav-item.active { background: var(--accent-hover); }
 
     .content { padding: 44px; }
 
@@ -125,24 +112,10 @@
       background: var(--surface);
       text-align: center;
     }
+    .welcome-panel h1 { margin-bottom: 8px; color: var(--text); font-size: 28px; }
+    .welcome-panel p, .page-sub { color: var(--muted); }
 
-    .welcome-panel h1 {
-      margin-bottom: 8px;
-      color: var(--text);
-      font-size: 28px;
-    }
-
-    .welcome-panel p,
-    .page-sub {
-      color: var(--muted);
-    }
-
-    .page-title {
-      margin-bottom: 7px;
-      font-size: 26px;
-      font-weight: 750;
-    }
-
+    .page-title { margin-bottom: 7px; font-size: 26px; font-weight: 750; }
     .page-sub { margin-bottom: 26px; }
 
     .card {
@@ -163,18 +136,17 @@
       font-weight: 650;
     }
 
-    select {
+    select, input[type="text"], input[type="file"] {
       width: 100%;
-      padding: 12px 42px 12px 14px;
+      padding: 12px 14px;
       border: 1px solid var(--line);
       border-radius: 10px;
       outline: none;
       color: var(--text);
       background: #fbfaff;
-      cursor: pointer;
     }
-
-    select:focus {
+    select { cursor: pointer; padding-right: 42px; }
+    select:focus, input:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(143, 121, 198, 0.16);
     }
@@ -191,36 +163,34 @@
       cursor: pointer;
       transition: 0.2s ease;
     }
-
     .primary:hover { background: var(--accent-hover); }
 
-    .message {
+    .message { margin-top: 16px; color: var(--success); font-size: 14px; }
+
+    /* hidden employee-id block, shown only when backend asks for it */
+    .id-block {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .id-block p { margin: 0 0 8px; font-size: 13px; color: var(--warn-text); }
+
+    #resumeResult {
       margin-top: 16px;
-      color: var(--success);
-      font-size: 14px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      color: var(--text);
     }
 
     [hidden] { display: none !important; }
 
     @media (max-width: 760px) {
-      .navbar {
-        height: 64px;
-        padding: 0 18px;
-      }
-
+      .navbar { height: 64px; padding: 0 18px; }
       .brand { font-size: 18px; }
-
-      .layout {
-        display: block;
-        min-height: calc(100vh - 64px);
-      }
-
-      .sidebar {
-        padding: 16px;
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
+      .layout { display: block; min-height: calc(100vh - 64px); }
+      .sidebar { padding: 16px; border-right: 0; border-bottom: 1px solid var(--line); }
       .role-label { margin-bottom: 12px; }
       .content { padding: 28px 18px; }
       .card { padding: 22px; }
@@ -236,21 +206,36 @@
   </header>
 
   <div class="layout">
+    <!-- ===== CONSTANT SIDEBAR ===== -->
     <aside class="sidebar">
-      <div class="role-label">HR Portal</div>
+      <div class="role-label">{{ userType }} Portal</div>
+
+      <!-- Create Requirement (all roles) -->
       <button id="createRequirementButton" class="nav-item" type="button"
-              aria-controls="requirementContent" aria-expanded="false">
+              data-target="requirementContent">
         <span aria-hidden="true">＋</span>
         Create Requirement
       </button>
+
+      <!-- Upload Resume — HR ONLY -->
+      {% if userType == "hr" %}
+      <button id="uploadResumeButton" class="nav-item" type="button"
+              data-target="resumeContent">
+        <span aria-hidden="true">⭱</span>
+        Upload Resume
+      </button>
+      {% endif %}
     </aside>
 
+    <!-- ===== RIGHT CONTENT (swaps by selected nav) ===== -->
     <main class="content">
+      <!-- welcome -->
       <section id="welcomeContent" class="welcome-panel">
         <h1>Welcome to IntelliCrew</h1>
-        <p>Select Create Requirement from the left menu to continue.</p>
+        <p>Select an option from the left menu to continue.</p>
       </section>
 
+      <!-- create requirement -->
       <section id="requirementContent" hidden>
         <h1 class="page-title">Create Requirement</h1>
         <p class="page-sub">Select a project and the required skill, then submit the requirement.</p>
@@ -260,7 +245,6 @@
             <label for="projectSelect">Add Project</label>
             <select id="projectSelect" name="project" required>
               <option value="" selected disabled>Select a project</option>
-
             </select>
           </div>
 
@@ -268,7 +252,6 @@
             <label for="skillSelect">Add Skills</label>
             <select id="skillSelect" name="skill" required>
               <option value="" selected disabled>Select a skill</option>
-
             </select>
           </div>
 
@@ -276,81 +259,82 @@
           <p id="formMessage" class="message" role="status" hidden></p>
         </form>
       </section>
+
+      <!-- upload resume — HR ONLY (rendered from resume.html) -->
+      {% if userType == "hr" %}
+      <section id="resumeContent" hidden>
+        {% include "resume.html" %}
+      </section>
+      {% endif %}
     </main>
   </div>
 
   <script>
-    const createRequirementButton = document.getElementById("createRequirementButton");
-    const welcomeContent = document.getElementById("welcomeContent");
-    const requirementContent = document.getElementById("requirementContent");
+    /* ---------- sidebar nav switching (sidebar constant, right swaps) ---------- */
+    const navItems = document.querySelectorAll(".nav-item");
+    const welcome = document.getElementById("welcomeContent");
+
+    navItems.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        // hide welcome + all content sections first
+        welcome.hidden = true;
+        document.querySelectorAll("main.content > section").forEach((sec) => {
+          sec.hidden = true;
+        });
+        // show the section this nav item targets
+        document.getElementById(btn.dataset.target).hidden = false;
+
+        // active highlight
+        navItems.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
+    /* ---------- create requirement ---------- */
     const requirementForm = document.getElementById("requirementForm");
-    const formMessage = document.getElementById("formMessage");
+    if (requirementForm) {
+      const formMessage = document.getElementById("formMessage");
+      requirementForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const projectSelect = document.getElementById("projectSelect");
+        const skillSelect = document.getElementById("skillSelect");
+        try {
+          const response = await fetch("/api/requirements", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ project: projectSelect.value, skill: skillSelect.value }),
+          });
+          if (!response.ok) throw new Error("API not available");
+          formMessage.textContent = "Requirement submitted successfully.";
+        } catch (error) {
+          const projectName = projectSelect.selectedOptions[0].text;
+          const skillName = skillSelect.selectedOptions[0].text;
+          formMessage.textContent = `Requirement selected for ${projectName} with ${skillName}.`;
+        }
+        formMessage.hidden = false;
+      });
+    }
+
+    /* ---------- logout ---------- */
     const logoutButton = document.getElementById("logoutButton");
     const logoutButtonText = document.getElementById("logoutButtonText");
-
-    createRequirementButton.addEventListener("click", () => {
-      welcomeContent.hidden = true;
-      requirementContent.hidden = false;
-      createRequirementButton.classList.add("active");
-      createRequirementButton.setAttribute("aria-expanded", "true");
-    });
-
-    requirementForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const projectSelect = document.getElementById("projectSelect");
-      const skillSelect = document.getElementById("skillSelect");
-      const project = projectSelect.value;
-      const skill = skillSelect.value;
-
-      try {
-        const response = await fetch("/api/requirements", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ project, skill })
-        });
-
-        if (!response.ok) {
-          throw new Error("API not available");
-        }
-
-        formMessage.textContent = "Requirement submitted successfully.";
-      } catch (error) {
-        const projectName = projectSelect.selectedOptions[0].text;
-        const skillName = skillSelect.selectedOptions[0].text;
-        formMessage.textContent = `Requirement selected for ${projectName} with ${skillName}.`;
-      }
-
-      formMessage.hidden = false;
-    });
 
     async function logout() {
       logoutButton.disabled = true;
       logoutButtonText.textContent = "Logging out...";
-
       try {
-        const response = await fetch("/api/logout", {
-          method: "POST",
-          credentials: "same-origin"
-        });
-
+        const response = await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
         let data = {};
         try { data = await response.json(); } catch { data = {}; }
-
-        if (!response.ok) {
-          throw new Error(data.detail || "Logout failed.");
-        }
-
+        if (!response.ok) throw new Error(data.detail || "Logout failed.");
         window.location.replace(data.redirect_url || "/");
       } catch (error) {
         console.error("Logout failed:", error);
         window.location.replace("/");
       }
     }
-
     logoutButton.addEventListener("click", logout);
   </script>
 </body>
 </html>
- 
