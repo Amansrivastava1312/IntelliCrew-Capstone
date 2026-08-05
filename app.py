@@ -1,4 +1,4 @@
-"""IntelliCrew — Login + HR Resume Upload (single app)."""
+"""IntelliCrew — Login + HR Resume Upload + Skill Search (single app)."""
 
 import os
 import shutil
@@ -17,8 +17,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from security import verify_password
+from fetch_sqlite_data.dashboard_data import get_manager_dashboard
 
-from Emp_DataAgent.resume_agent import resume_agent          # compiled LangGraph agent
+
+# --- orchestrator replaces the direct resume_agent import ---
+from orchestrator.orchestrator import run as orchestrate
 
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE_FILE = BASE_DIR / "data" / "employee_records.db"
@@ -133,7 +136,7 @@ def current_user(sid: str | None = Cookie(None, alias=COOKIE)):
     return {"user_id": s["user_id"], "name": s["name"], "role": s["role"]}
 
 
-# ---------- resume agent API (HR only) ----------
+# ---------- resume upload (HR only) — now goes through the orchestrator ----------
 @app.post("/api/process-resume")
 async def process_resume(
     file: UploadFile = File(...),
@@ -149,7 +152,6 @@ async def process_resume(
     with open(temp_path, "wb") as f:
         shutil.copyfileobj(file.file, f)
 
-    # only file_path + optional employee_id are seeded now
     state = {
         "file_path": temp_path,
         "raw_text": "",
@@ -157,7 +159,9 @@ async def process_resume(
         "employee_id": None,
         "status": "started",
     }
-    result = resume_agent.invoke(state)
+
+    # a file is attached -> orchestrator routes this to resume_agent
+    result = orchestrate(state, user_input="process resume", has_file=True)
 
     if result["status"] == "need_employee_id":
         if os.path.exists(temp_path):
@@ -173,8 +177,55 @@ async def process_resume(
 
     return {
         "status": result["status"],
+        "handled_by": result.get("handled_by"),
         "employee_id": final_emp_id,
         "full_name": result["extracted"].get("full_name"),
         "designation": result["extracted"].get("designation"),
         "skills_found": len(result.get("extracted", {}).get("skills", [])),
     }
+
+
+# ---------- skill search (any logged-in user) — free text, orchestrator decides ----------
+@app.post("/api/find-employees")
+def find_employees(payload: QueryRequest, sid: str | None = Cookie(None, alias=COOKIE)):
+    require_session(sid)
+
+    state = {"query": payload.question, "skills": [], "matches": [], "status": "started"}
+
+    # no file -> orchestrator routes this to skill_agent (keyword match)
+    result = orchestrate(state, user_input=payload.question, has_file=False)
+
+    return {
+        "handled_by": result.get("handled_by"),
+        "skills": result.get("skills", []),
+        "status": result.get("status"),
+        "matches": result.get("matches", []),
+    }
+    
+    
+# ---------- manager dashboard (MANAGER only) ----------
+@app.get("/manager/dashboard", response_class=HTMLResponse, include_in_schema=False)
+def manager_dashboard(request: Request, sid: str | None = Cookie(None, alias=COOKIE)):
+    s = get_session(sid)
+    if not s:
+        return RedirectResponse("/", status_code=303)
+
+    # managers only — block HR from opening the manager dashboard
+    if s["role"] != "MANAGER":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only managers can view this dashboard.")
+
+    data = get_manager_dashboard(s["user_id"])   # uses the logged-in manager's id
+    return templates.TemplateResponse(
+        request=request,
+        name="manager_dashboard.html",
+        context={"request": request, **data},
+    )
+    
+    
+    
+import fetch_sqlite_data.requirement_data as requirement_data
+
+@app.get("/api/projects")
+def api_projects():
+    # returns: {"projects": [{project_id, project_name, client, skills:[...]}, ...]}
+    return {"projects": requirement_data.get_projects()}
