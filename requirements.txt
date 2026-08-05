@@ -23,7 +23,7 @@ docx2txt==0.8
 
 
 langchain_huggingface
-transformers
+transformers == 4.46.3
 torch
 youtube-transcript-api
 openai-whisper

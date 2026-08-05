@@ -274,6 +274,42 @@ def api_projects():
     # returns: {"projects": [{project_id, project_name, client, skills:[...]}, ...]}
     return {"projects": requirement_data.get_projects()}
 
+from skillgap_agent.matching_agent import run_matching_agent
+
+class ProjectMatchRequest(BaseModel):
+    project_id: int = Field(gt=0)
+
+# ---------- project employee matching ----------
+@app.post("/api/project-matches")
+def api_project_matches(
+    payload: ProjectMatchRequest,
+    sid: str | None = Cookie(None, alias=COOKIE),
+):
+    """Run the matching agent for the project selected by the manager."""
+
+    session = require_session(sid)
+    if session["role"] != "MANAGER":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only managers can generate employee matches.",
+        )
+
+    result = run_matching_agent(payload.project_id)
+
+    if not result.get("success"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get(
+                "message",
+                "Unable to generate employee matches.",
+            ),
+        )
+
+    return result
+
+
+
+
 
 # ---------- video summarizer (any logged-in user) — goes through orchestrator ----------
 VIDEO_DIR = BASE_DIR / "videos"

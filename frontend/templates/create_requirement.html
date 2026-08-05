@@ -1,79 +1,297 @@
-<!-- create_requirement.html — included inside home.html -->
+<!-- create_requirement.html - included inside home.html -->
 
 <div class="page-head">
   <h1>Create Requirement</h1>
-  <p class="subtitle">Select a project to view the skills required for it.</p>
+  <p class="subtitle">Select a project to view its required skills and find matching employees.</p>
 </div>
 
-<form id="requirementForm" class="card">
-  <div class="form-group">
-    <label for="projectSelect">Select Project</label>
-    <select id="projectSelect" name="project" required>
-      <option value="" selected disabled>Select a project</option>
-    </select>
-  </div>
+<div class="requirement-layout">
+  <section class="requirement-left">
+    <form id="requirementForm" class="card requirement-form">
+      <div class="form-group">
+        <label for="projectSelect">Select Project</label>
+        <select id="projectSelect" name="project" required>
+          <option value="" selected disabled>Select a project</option>
+        </select>
+      </div>
 
-  <!-- skills of the selected project appear here as tags -->
-  <div class="form-group" id="skillsGroup" hidden>
-    <label>Required Skills</label>
-    <div id="skillTags" class="skill-tags"></div>
-  </div>
+      <div class="form-group" id="skillsGroup" hidden>
+        <label>Required Skills</label>
+        <div id="skillTags" class="skill-tags"></div>
+      </div>
 
-  <button class="primary" type="submit">Submit</button>
-  <p id="formMessage" class="message" role="status" hidden></p>
-</form>
+      <button class="primary" type="submit">Submit</button>
+      <p id="formMessage" class="message" role="status" hidden></p>
+    </form>
+  </section>
+
+  <section id="matchResults" class="card match-results" hidden>
+    <div class="results-head">
+      <div>
+        <h2>Employee Matches</h2>
+        <p id="resultsSubtitle" class="results-subtitle"></p>
+      </div>
+      <span id="selectedCount" class="selected-count">0 selected</span>
+    </div>
+
+    <div id="employeeMatches" class="employee-list"></div>
+
+    <div id="saveArea" class="save-area" hidden>
+      <p id="saveMessage" class="message" role="status" hidden></p>
+      <button id="saveSelectionsButton" class="primary save-button" type="button">
+        Save Selected Employees
+      </button>
+    </div>
+  </section>
+</div>
 
 <style>
-  .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .requirement-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 0.8fr) minmax(520px, 1.2fr);
+    align-items: start;
+    gap: 24px;
+    width: 100%;
+  }
+
+  .requirement-left,
+  .match-results {
+    min-width: 0;
+  }
+
+  .requirement-form,
+  .match-results {
+    margin: 0;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   .skill-tag {
+    padding: 6px 12px;
+    border: 1px solid #ddd8f7;
+    border-radius: 999px;
     background: var(--lavender);
     color: var(--primary-dark);
-    border: 1px solid #ddd8f7;
-    padding: 6px 12px;
-    border-radius: 999px;
     font-size: 13px;
     font-weight: 600;
   }
-  .skill-empty { color: var(--muted); font-size: 13px; }
+
+  .skill-empty,
+  .results-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .results-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .results-head h2 {
+    margin: 0 0 4px;
+  }
+
+  .results-subtitle {
+    margin: 0;
+  }
+
+  .selected-count {
+    flex: 0 0 auto;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: #f0edff;
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .employee-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .employee-match {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #e4e5ec;
+    border-radius: 14px;
+    background: #fff;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .employee-match.is-selected {
+    border-color: #7770db;
+    background: #f8f7ff;
+    box-shadow: 0 0 0 2px rgba(119, 112, 219, 0.12);
+  }
+
+  .employee-main {
+    min-width: 0;
+  }
+
+  .employee-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .employee-title-row h3 {
+    margin: 0;
+    font-size: 17px;
+  }
+
+  .rank-badge,
+  .match-badge {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .rank-badge {
+    background: #ece9ff;
+    color: #5148c8;
+  }
+
+  .match-badge {
+    background: #e9f8ef;
+    color: #237a43;
+  }
+
+  .employee-meta,
+  .employee-description {
+    margin: 5px 0;
+    line-height: 1.45;
+  }
+
+  .employee-meta {
+    font-size: 13px;
+  }
+
+  .employee-description {
+    color: #4f5565;
+    font-size: 13px;
+  }
+
+  .select-employee-button {
+    align-self: center;
+    min-width: 94px;
+    padding: 9px 14px;
+    border: 1px solid #6f68d8;
+    border-radius: 9px;
+    background: #fff;
+    color: #5a53cb;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .select-employee-button.selected {
+    background: #6f68d8;
+    color: #fff;
+  }
+
+  .save-area {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #e4e5ec;
+    background: #fff;
+  }
+
+  .save-area .message {
+    margin: 0 auto 0 0;
+  }
+
+  .save-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  @media (max-width: 1050px) {
+    .requirement-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .employee-match {
+      grid-template-columns: 1fr;
+    }
+
+    .select-employee-button {
+      width: 100%;
+    }
+
+    .save-area {
+      align-items: stretch;
+      flex-direction: column;
+    }
+  }
 </style>
 
 <script>
 (function () {
-  const projectSelect   = document.getElementById("projectSelect");
-  const skillsGroup     = document.getElementById("skillsGroup");
-  const skillTags       = document.getElementById("skillTags");
+  const projectSelect = document.getElementById("projectSelect");
+  const skillsGroup = document.getElementById("skillsGroup");
+  const skillTags = document.getElementById("skillTags");
   const requirementForm = document.getElementById("requirementForm");
-  const formMessage     = document.getElementById("formMessage");
+  const formMessage = document.getElementById("formMessage");
+  const submitButton = requirementForm.querySelector('button[type="submit"]');
+  const matchResults = document.getElementById("matchResults");
+  const resultsSubtitle = document.getElementById("resultsSubtitle");
+  const employeeMatches = document.getElementById("employeeMatches");
+  const selectedCount = document.getElementById("selectedCount");
+  const saveArea = document.getElementById("saveArea");
+  const saveMessage = document.getElementById("saveMessage");
+  const saveSelectionsButton = document.getElementById("saveSelectionsButton");
 
-  // ---- variables we keep for later use ----
-  let projectsCache   = [];   // full project list from DB
-  let selectedProject = null; // the chosen project object
-  let selectedSkills  = [];   // <-- skills of chosen project (use later)
+  let projectsCache = [];
+  let selectedProject = null;
+  let selectedSkills = [];
+  let matchingEmployees = [];
+  const selectedEmployeeIds = new Set();
 
-  // 1) load projects into the dropdown
   async function loadProjects() {
     try {
-      const res  = await fetch("/api/projects", { credentials: "same-origin" });
-      const data = await res.json();
-      projectsCache = data.projects || [];
+      const response = await fetch("/api/projects", { credentials: "same-origin" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Could not load projects.");
 
-      projectsCache.forEach((p) => {
-        const opt = document.createElement("option");
-        opt.value = p.project_id;
-        opt.textContent = p.project_name;
-        projectSelect.appendChild(opt);
+      projectsCache = data.projects || [];
+      projectsCache.forEach((project) => {
+        const option = document.createElement("option");
+        option.value = project.project_id;
+        option.textContent = project.project_name;
+        projectSelect.appendChild(option);
       });
-    } catch (e) {
-      console.error("Could not load projects:", e);
+    } catch (error) {
+      console.error("Could not load projects:", error);
+      showFormMessage(error.message);
     }
   }
 
-  // 2) when a project is picked -> show its skills as tags
   projectSelect.addEventListener("change", () => {
     selectedProject = projectsCache.find(
-      (p) => String(p.project_id) === projectSelect.value
+      (project) => String(project.project_id) === projectSelect.value
     );
-    selectedSkills = selectedProject ? selectedProject.skills : [];
+    selectedSkills = selectedProject ? selectedProject.skills || [] : [];
 
     skillTags.innerHTML = "";
     if (selectedSkills.length) {
@@ -84,38 +302,202 @@
         skillTags.appendChild(tag);
       });
     } else {
-      skillTags.innerHTML =
-        '<span class="skill-empty">No skills listed for this project.'
+      skillTags.innerHTML = '<span class="skill-empty">No skills listed for this project.</span>';
     }
+
     skillsGroup.hidden = false;
+    clearResults();
+    formMessage.hidden = true;
   });
 
-  // 3) submit -> send project + its skills
-  requirementForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!selectedProject) return;
+  requirementForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!selectedProject) {
+      showFormMessage("Please select a project.");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Finding matches...";
+    formMessage.hidden = true;
+    clearResults();
 
     try {
-      const res = await fetch("/api/requirements", {
+      const response = await fetch("/api/project-matches", {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_id: selectedProject.project_id,
-          project_name: selectedProject.project_name,
-          skills: selectedSkills,           // sending the skills too
-        }),
+        body: JSON.stringify({ project_id: Number(selectedProject.project_id) }),
       });
-      if (!res.ok) throw new Error("API not available");
-      formMessage.textContent = "Requirement submitted successfully.";
-    } catch (err) {
-      formMessage.textContent =
-        "Requirement selected for " + selectedProject.project_name +
-        " with skills: " + selectedSkills.join(", ") + ".";
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Unable to generate employee matches.");
+
+      matchingEmployees = data.employees || [];
+      showFormMessage(
+        `Found ${data.total_employees} active employees for ${data.project.project_name}.`
+      );
+      resultsSubtitle.textContent = `${data.project.project_name} - ranked by skill match`;
+      renderEmployeeMatches(matchingEmployees);
+    } catch (error) {
+      console.error("Matching request failed:", error);
+      showFormMessage(error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Submit";
     }
-    formMessage.hidden = false;
   });
 
+  function renderEmployeeMatches(employees) {
+    employeeMatches.innerHTML = "";
+    selectedEmployeeIds.clear();
+    updateSelectionUI();
+
+    if (!employees.length) {
+      employeeMatches.innerHTML = '<p class="skill-empty">No active employees were found.</p>';
+      matchResults.hidden = false;
+      saveArea.hidden = true;
+      return;
+    }
+
+    employees.forEach((employee) => {
+      const row = document.createElement("article");
+      row.className = "employee-match";
+      row.dataset.employeeId = employee.employee_id;
+
+      const main = document.createElement("div");
+      main.className = "employee-main";
+
+      const titleRow = document.createElement("div");
+      titleRow.className = "employee-title-row";
+
+      const title = document.createElement("h3");
+      title.textContent = employee.employee_name;
+
+      const rank = document.createElement("span");
+      rank.className = "rank-badge";
+      rank.textContent = `Rank ${employee.rank}`;
+
+      const match = document.createElement("span");
+      match.className = "match-badge";
+      match.textContent = `${employee.matching_percentage}% match`;
+
+      titleRow.append(title, rank, match);
+
+      const employeeId = makeText("employee-meta", `Employee ID: ${employee.employee_id}`);
+      const count = makeText(
+        "employee-meta",
+        `Matched skills: ${employee.matched_count}/${employee.required_count}`
+      );
+      const matched = makeText(
+        "employee-meta",
+        `Skills matched: ${formatSkills(employee.matched_skills)}`
+      );
+      const missing = makeText(
+        "employee-meta",
+        `Skill gaps: ${formatSkills(employee.missing_skills)}`
+      );
+      const description = makeText("employee-description", employee.description || "");
+
+      main.append(titleRow, employeeId, count, matched, missing, description);
+
+      const selectButton = document.createElement("button");
+      selectButton.type = "button";
+      selectButton.className = "select-employee-button";
+      selectButton.textContent = "Select";
+      selectButton.setAttribute("aria-pressed", "false");
+      selectButton.addEventListener("click", () => toggleEmployee(employee, row, selectButton));
+
+      row.append(main, selectButton);
+      employeeMatches.appendChild(row);
+    });
+
+    matchResults.hidden = false;
+    saveArea.hidden = false;
+    saveMessage.hidden = true;
+  }
+
+  function toggleEmployee(employee, row, button) {
+    const employeeId = employee.employee_id;
+
+    if (selectedEmployeeIds.has(employeeId)) {
+      selectedEmployeeIds.delete(employeeId);
+      row.classList.remove("is-selected");
+      button.classList.remove("selected");
+      button.textContent = "Select";
+      button.setAttribute("aria-pressed", "false");
+    } else {
+      selectedEmployeeIds.add(employeeId);
+      row.classList.add("is-selected");
+      button.classList.add("selected");
+      button.textContent = "Selected";
+      button.setAttribute("aria-pressed", "true");
+    }
+
+    saveMessage.hidden = true;
+    updateSelectionUI();
+  }
+
+  saveSelectionsButton.addEventListener("click", () => {
+    const selectedEmployees = matchingEmployees.filter((employee) =>
+      selectedEmployeeIds.has(employee.employee_id)
+    );
+
+    if (!selectedEmployees.length) {
+      saveMessage.textContent = "Select at least one employee before saving.";
+      saveMessage.hidden = false;
+      return;
+    }
+
+    // This data is ready for the allocation/save API in the next update.
+    const selectionData = {
+      project_id: Number(selectedProject.project_id),
+      employees: selectedEmployees.map((employee) => ({
+        employee_id: employee.employee_id,
+        rank: employee.rank,
+        matching_percentage: employee.matching_percentage,
+      })),
+    };
+
+    console.log("Selected employee records:", selectionData);
+    window.selectedRequirementEmployees = selectionData;
+
+    saveMessage.textContent = `${selectedEmployees.length} employee(s) selected and ready to save.`;
+    saveMessage.hidden = false;
+  });
+
+  function updateSelectionUI() {
+    const count = selectedEmployeeIds.size;
+    selectedCount.textContent = `${count} selected`;
+    saveSelectionsButton.disabled = count === 0;
+  }
+
+  function clearResults() {
+    matchingEmployees = [];
+    selectedEmployeeIds.clear();
+    employeeMatches.innerHTML = "";
+    matchResults.hidden = true;
+    saveArea.hidden = true;
+    saveMessage.hidden = true;
+    updateSelectionUI();
+  }
+
+  function showFormMessage(message) {
+    formMessage.textContent = message;
+    formMessage.hidden = false;
+  }
+
+  function makeText(className, text) {
+    const element = document.createElement("p");
+    element.className = className;
+    element.textContent = text;
+    return element;
+  }
+
+  function formatSkills(skills) {
+    return skills && skills.length ? skills.join(", ") : "None";
+  }
+
+  updateSelectionUI();
   loadProjects();
 })();
 </script>
