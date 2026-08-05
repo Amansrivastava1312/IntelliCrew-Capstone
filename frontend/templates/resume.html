@@ -12,255 +12,167 @@
     --error: #c06c84;
 }
 
-.page-title {
-    text-align: center;
-    font-size: 30px;
-    color: var(--text);
-    margin-bottom: 10px;
-}
-
-.page-sub {
-    text-align: center;
-    color: var(--muted);
-    margin-bottom: 30px;
-}
+.page-title { text-align: center; font-size: 30px; color: var(--text); margin-bottom: 10px; }
+.page-sub   { text-align: center; color: var(--muted); margin-bottom: 30px; }
 
 .card {
-    max-width: 750px;
-    margin: 0 auto;
-    padding: 35px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    box-shadow: 0 10px 40px rgba(94,75,128,.08);
+    max-width: 750px; margin: 0 auto; padding: 35px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 24px; box-shadow: 0 10px 40px rgba(94,75,128,.08);
+    position: relative;
 }
 
 .upload-box {
-    border: 2px dashed #d7caec;
-    border-radius: 20px;
-    min-height: 220px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    background: #fcfbff;
-    transition: .25s;
+    border: 2px dashed #d7caec; border-radius: 20px; min-height: 220px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    cursor: pointer; background: #fcfbff; transition: .25s;
 }
+.upload-box:hover, .upload-box.dragover { background: var(--primary-light); border-color: var(--primary); }
+.upload-icon { font-size: 56px; margin-bottom: 8px; }
+.upload-box h3 { margin: 0; color: var(--text); }
+.upload-box p  { color: var(--muted); }
 
-.upload-box:hover,
-.upload-box.dragover {
-    background: var(--primary-light);
-    border-color: var(--primary);
-}
+input[type="file"] { display: none; }
 
-.upload-icon {
-    font-size: 56px;
-    margin-bottom: 8px;
-}
-
-.upload-box h3 {
-    margin: 0;
-    color: var(--text);
-}
-
-.upload-box p {
-    color: var(--muted);
-}
-
-input[type="file"] {
-    display: none;
-}
-
-.id-block {
-    background: #fff7f8;
-    border: 1px solid #f3d3dc;
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 20px;
-}
-
-.id-block p {
-    color: var(--error);
-    margin-top: 0;
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-
-input[type="text"] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
+.file-list { margin-top: 14px; padding: 0; list-style: none; }
+.file-list li {
+    padding: 8px 12px; background: #f8f6fc; border: 1px solid var(--line);
+    border-radius: 10px; margin-bottom: 6px; color: var(--text); font-size: 14px;
+    display: flex; justify-content: space-between;
 }
 
 .primary {
-    width: 100%;
-    margin-top: 25px;
-    padding: 14px;
-    border: none;
-    border-radius: 14px;
-    background: var(--primary);
-    color: white;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
+    width: 100%; margin-top: 25px; padding: 14px; border: none;
+    border-radius: 14px; background: var(--primary); color: white;
+    font-size: 15px; font-weight: 600; cursor: pointer;
 }
-
-.primary:hover {
-    background: var(--primary-hover);
-}
-
-.file-name {
-    margin-top: 12px;
-    text-align: center;
-    color: var(--success);
-}
+.primary:hover { background: var(--primary-hover); }
+.primary:disabled { opacity: .6; cursor: not-allowed; }
 
 #resumeResult {
-    margin-top: 16px;
-    padding: 12px;
-    border-radius: 10px;
-    background: #f8f6fc;
-    white-space: pre-wrap;
-    word-break: break-word;
+    margin-top: 16px; padding: 12px; border-radius: 10px;
+    background: #f8f6fc; white-space: pre-wrap; word-break: break-word;
 }
+
+/* loader overlay */
+.overlay {
+    position: absolute; inset: 0; background: rgba(255,255,255,.85);
+    border-radius: 24px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; z-index: 5;
+}
+.overlay[hidden] { display: none; }
+.spinner {
+    width: 46px; height: 46px; border: 5px solid var(--primary-light);
+    border-top-color: var(--primary); border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+.overlay p { margin-top: 14px; color: var(--text); font-weight: 600; }
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 
-<h1 class="page-title">Upload Resume</h1>
-
-<p class="page-sub">
-    Upload a PDF/DOCX resume. The agent extracts everything automatically.
-</p>
+<h1 class="page-title">Upload Resumes</h1>
+<p class="page-sub">Upload one or more PDF/DOCX resumes. The agent processes them all automatically.</p>
 
 <form id="resumeForm" class="card">
 
-    <div id="idBlock" class="id-block" hidden>
-        <p>⚠️ No Employee ID found in the resume. Please enter it manually.</p>
-
-        <label for="employeeId">Employee ID</label>
-
-        <input
-            type="text"
-            id="employeeId"
-            name="employee_id"
-            placeholder="e.g. EMP001"
-        />
+    <!-- loader shows while processing -->
+    <div id="overlay" class="overlay" hidden>
+        <div class="spinner"></div>
+        <p id="overlayText">Processing resumes...</p>
     </div>
 
     <label id="uploadBox" class="upload-box" for="resumeFile">
-
         <div class="upload-icon">📄</div>
-
-        <h3>Upload Resume</h3>
-
-        <p>Drag & Drop or Click to Browse</p>
-
-        <input
-            type="file"
-            id="resumeFile"
-            name="file"
-            accept=".pdf,.docx"
-            required
-        />
+        <h3>Upload Resumes</h3>
+        <p>Drag & Drop or Click to Browse (multiple allowed)</p>
+        <input type="file" id="resumeFile" name="files" accept=".pdf,.docx" multiple required />
     </label>
 
-    <p id="fileName" class="file-name" hidden></p>
+    <ul id="fileList" class="file-list"></ul>
 
-    <button class="primary" type="submit">
-        Process Resume
-    </button>
+    <button id="submitBtn" class="primary" type="submit">Process Resumes</button>
 
     <div id="resumeResult"></div>
-
 </form>
 
 <script>
 const resumeForm = document.getElementById("resumeForm");
 
 if (resumeForm) {
-
     const resumeResult = document.getElementById("resumeResult");
-    const idBlock = document.getElementById("idBlock");
-    const employeeId = document.getElementById("employeeId");
+    const resumeFile   = document.getElementById("resumeFile");
+    const uploadBox    = document.getElementById("uploadBox");
+    const fileList     = document.getElementById("fileList");
+    const overlay      = document.getElementById("overlay");
+    const overlayText  = document.getElementById("overlayText");
+    const submitBtn    = document.getElementById("submitBtn");
 
-    const resumeFile = document.getElementById("resumeFile");
-    const uploadBox = document.getElementById("uploadBox");
-    const fileName = document.getElementById("fileName");
-
-    resumeFile.addEventListener("change", () => {
-
-        if (resumeFile.files.length) {
-            fileName.textContent =
-                "Selected file: " + resumeFile.files[0].name;
-
-            fileName.hidden = false;
-        }
-    });
-
-    ["dragenter", "dragover"].forEach(eventName => {
-        uploadBox.addEventListener(eventName, event => {
-            event.preventDefault();
-            uploadBox.classList.add("dragover");
+    // show the list of selected files
+    function renderFiles() {
+        fileList.innerHTML = "";
+        [...resumeFile.files].forEach(f => {
+            const li = document.createElement("li");
+            li.innerHTML = `<span>${f.name}</span><span>${(f.size/1024).toFixed(0)} KB</span>`;
+            fileList.appendChild(li);
         });
+    }
+
+    resumeFile.addEventListener("change", renderFiles);
+
+    ["dragenter", "dragover"].forEach(ev => {
+        uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.add("dragover"); });
+    });
+    ["dragleave", "drop"].forEach(ev => {
+        uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.remove("dragover"); });
     });
 
-    ["dragleave", "drop"].forEach(eventName => {
-        uploadBox.addEventListener(eventName, event => {
-            event.preventDefault();
-            uploadBox.classList.remove("dragover");
-        });
-    });
-
-    uploadBox.addEventListener("drop", event => {
-
-        const files = event.dataTransfer.files;
-
-        if (files.length) {
-            resumeFile.files = files;
-            resumeFile.dispatchEvent(
-                new Event("change")
-            );
+    uploadBox.addEventListener("drop", e => {
+        if (e.dataTransfer.files.length) {
+            resumeFile.files = e.dataTransfer.files;   // supports multiple
+            renderFiles();
         }
     });
 
     resumeForm.addEventListener("submit", async (e) => {
-
         e.preventDefault();
 
-        resumeResult.textContent = "Processing...";
+        if (!resumeFile.files.length) return;
 
-        const data = new FormData(resumeForm);
+        // turn on loader
+        overlay.hidden = false;
+        submitBtn.disabled = true;
+        overlayText.textContent = `Processing ${resumeFile.files.length} resume(s)...`;
+        resumeResult.textContent = "";
 
-        const res = await fetch("/api/process-resume", {
-            method: "POST",
-            credentials: "same-origin",
-            body: data
-        });
+        const data = new FormData();
+        [...resumeFile.files].forEach(f => data.append("files", f));  // key must match backend "files"
 
-        const json = await res.json();
+        try {
+            const res = await fetch("/api/process-resumes", {
+                method: "POST",
+                credentials: "same-origin",
+                body: data
+            });
+            const json = await res.json();
 
-        if (json.status === "need_employee_id") {
+            // simple readable summary
+            let out = `Total: ${json.total} | Processed: ${json.processed} | Need ID: ${json.need_employee_id}\n\n`;
+            json.results.forEach(r => {
+                if (r.status === "need_employee_id") {
+                    out += `⚠️ ${r.file} → No Employee ID found\n`;
+                } else {
+                    out += `✅ ${r.file} → ${r.employee_id} | ${r.full_name} | ${r.designation} | skills: ${r.skills_found}\n`;
+                }
+            });
+            resumeResult.textContent = out;
 
-            idBlock.hidden = false;
-            employeeId.required = true;
-            employeeId.focus();
-
-            resumeResult.textContent =
-                "Please enter the Employee ID above, then click Process again.";
-
-            return;
+        } catch (err) {
+            resumeResult.textContent = "Error: " + err.message;
+        } finally {
+            // turn off loader
+            overlay.hidden = true;
+            submitBtn.disabled = false;
         }
-
-        idBlock.hidden = true;
-        employeeId.required = false;
-
-        resumeResult.textContent =
-            JSON.stringify(json, null, 2);
     });
 }
 </script>

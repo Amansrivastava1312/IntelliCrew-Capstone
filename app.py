@@ -18,7 +18,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from security import verify_password
 from fetch_sqlite_data.dashboard_data import get_manager_dashboard
-
+from Emp_DataAgent.embed_agent import run_embedding_agent
 
 # --- orchestrator replaces the direct resume_agent import ---
 from orchestrator.orchestrator import run as orchestrate
@@ -137,52 +137,96 @@ def current_user(sid: str | None = Cookie(None, alias=COOKIE)):
 
 
 # ---------- resume upload (HR only) — now goes through the orchestrator ----------
-@app.post("/api/process-resume")
-async def process_resume(
-    file: UploadFile = File(...),
-    employee_id: Optional[str] = Form(None),      # only on re-submit
+from typing import List, Optional
+
+from typing import List, Optional
+
+# these live in Emp_DataAgent.db (helpers shown in section 4)
+# from Emp_DataAgent.db import log_resume
+# from Emp_DataAgent.embed_agent import run_embedding_agent   # NEW separate agent
+
+
+@app.post("/api/process-resumes")
+async def process_resumes(
+    files: List[UploadFile] = File(...),
+    employee_ids: Optional[List[str]] = Form(None),   # re-submit: "filename:empid"
     sid: str | None = Cookie(None, alias=COOKIE),
 ):
     s = require_session(sid)
     if s["role"] != "HR":
         raise HTTPException(403, "Only HR can upload resumes.")
 
-    ext = os.path.splitext(file.filename)[1].lower()
-    temp_path = os.path.join(UPLOAD_DIR, f"_tmp_{file.filename}")
-    with open(temp_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    # {filename: employee_id} from re-submit
+    manual_ids = {}
+    if employee_ids:
+        for pair in employee_ids:
+            if ":" in pair:
+                fname, emp = pair.split(":", 1)
+                manual_ids[fname.strip()] = emp.strip()
 
-    state = {
-        "file_path": temp_path,
-        "raw_text": "",
-        "extracted": {"employee_id": employee_id} if employee_id else {},
-        "employee_id": None,
-        "status": "started",
-    }
+    results = []
 
-    # a file is attached -> orchestrator routes this to resume_agent
-    result = orchestrate(state, user_input="process resume", has_file=True)
+    # ---------- loop + store each resume ----------
+    for file in files:
+        ext = os.path.splitext(file.filename)[1].lower()
+        temp_path = os.path.join(UPLOAD_DIR, f"_tmp_{file.filename}")
 
-    if result["status"] == "need_employee_id":
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        return {"status": "need_employee_id",
-                "message": "No Employee ID found in the resume. Please enter it manually."}
+        with open(temp_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
 
-    final_emp_id = result.get("employee_id")
-    final_path = os.path.join(UPLOAD_DIR, f"{final_emp_id}{ext}")
-    if os.path.exists(final_path):
-        os.remove(final_path)
-    os.rename(temp_path, final_path)
+        manual = manual_ids.get(file.filename)
+
+        state = {
+            "file_path": temp_path,
+            "raw_text": "",
+            "extracted": {"employee_id": manual} if manual else {},
+            "employee_id": None,
+            "status": "started",
+        }
+
+        result = orchestrate(state, user_input="process resume", has_file=True)
+
+        # case 1: no employee id -> drop temp file, ask HR
+        if result["status"] == "need_employee_id":
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            results.append({
+                "file": file.filename,
+                "status": "need_employee_id",
+                "message": "No Employee ID found. Please enter it manually.",
+            })
+            continue
+
+        # case 2: success -> rename temp to <employee_id>.ext
+        final_emp_id = result.get("employee_id")
+        final_path = os.path.join(UPLOAD_DIR, f"{final_emp_id}{ext}")
+        if os.path.exists(final_path):
+            os.remove(final_path)
+        os.rename(temp_path, final_path)
+
+        results.append({
+            "file": file.filename,
+            "status": result["status"],
+            "handled_by": result.get("handled_by"),
+            "employee_id": final_emp_id,
+            "full_name": result["extracted"].get("full_name"),
+            "designation": result["extracted"].get("designation"),
+            "skills_found": len(result.get("extracted", {}).get("skills", [])),
+        })
+
+    embed_summary = run_embedding_agent()
+    # summary counts for the UI
+    processed = sum(1 for r in results if r["status"] != "need_employee_id")
+    need_id   = sum(1 for r in results if r["status"] == "need_employee_id")
 
     return {
-        "status": result["status"],
-        "handled_by": result.get("handled_by"),
-        "employee_id": final_emp_id,
-        "full_name": result["extracted"].get("full_name"),
-        "designation": result["extracted"].get("designation"),
-        "skills_found": len(result.get("extracted", {}).get("skills", [])),
+        "status": "done",
+        "total": len(files),
+        "processed": processed,
+        "need_employee_id": need_id,
+        "results": results,
     }
+
 
 
 # ---------- skill search (any logged-in user) — free text, orchestrator decides ----------

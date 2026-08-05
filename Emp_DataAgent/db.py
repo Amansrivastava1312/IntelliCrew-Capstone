@@ -121,3 +121,50 @@ def add_employee_skill(employee_id, skill_id, proficiency_level, years_experienc
         conn.commit()
 
     conn.close()
+    
+    
+    
+def get_resume_log_by_name(file_name):
+    """Return the resume_logs row for a file_name, or None if not logged yet."""
+    conn = get_conn()
+    cur = conn.cursor()
+    row = cur.execute(
+        "SELECT log_id, file_name, file_path, ingested FROM resume_logs WHERE file_name = ?",
+        (file_name,),
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def log_resume(file_name, file_path, ingested=0):
+    """Insert a row into resume_logs. Returns log_id."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO resume_logs (file_name, file_path, ingested) VALUES (?, ?, ?)",
+        (file_name, file_path, ingested),
+    )
+    conn.commit()
+    log_id = cur.lastrowid
+    conn.close()
+    return log_id
+
+
+def mark_resume_ingested(log_id):
+    """Flip ingested to 1 after embedding succeeds."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("UPDATE resume_logs SET ingested = 1 WHERE log_id = ?", (log_id,))
+    conn.commit()
+    conn.close()
+
+
+def get_employee_name(employee_id):
+    """Look up full_name for embed metadata (returns None if not found)."""
+    conn = get_conn()
+    cur = conn.cursor()
+    row = cur.execute(
+        "SELECT full_name FROM employees WHERE employee_id = ?", (employee_id,)
+    ).fetchone()
+    conn.close()
+    return row["full_name"] if row else None

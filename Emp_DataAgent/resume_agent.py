@@ -81,7 +81,7 @@ def build_graph():
     g.add_node("check", node_check_id)
     g.add_node("employee", node_employee)
     g.add_node("skills", node_skills)
-    g.add_node("embed", node_embed)
+    # g.add_node("embed", node_embed)
 
     g.set_entry_point("load")
     g.add_edge("load", "extract")
@@ -89,8 +89,8 @@ def build_graph():
     g.add_conditional_edges("check", route_after_check,
                             {"continue": "employee", "stop": END})
     g.add_edge("employee", "skills")
-    g.add_edge("skills", "embed")
-    g.add_edge("embed", END)
+    g.add_edge("skills",END)
+    # g.add_edge("embed", END)
     return g.compile()
 
 

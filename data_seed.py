@@ -161,6 +161,14 @@ CREATE TABLE IF NOT EXISTS audit_log (
     new_value TEXT
 );
 
+CREATE TABLE IF NOT EXISTS resume_logs (
+    log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    file_name VARCHAR(255) NOT NULL,
+    file_path TEXT NOT NULL,
+    ingested INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS manager (
     manager_id VARCHAR(20) PRIMARY KEY,
     full_name VARCHAR(120) NOT NULL,
