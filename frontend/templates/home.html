@@ -1,178 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IntelliCrew | Portal</title>
   <style>
     :root {
-      --bg: #f7f6fb;
-      --surface: #ffffff;
-      --sidebar: #eeeaf7;
-      --accent: #8f79c6;
-      --accent-hover: #7d66b8;
-      --text: #4a4658;
-      --muted: #8b869c;
-      --line: #e3dff0;
-      --error: #a84c5b;
-      --success: #34785a;
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --sidebar: #eef1ff;
+      --primary: #6f73d2;
+      --primary-dark: #5559b8;
+      --mint: #dff5ea;
+      --peach: #ffe9dc;
+      --blue: #e3efff;
+      --lavender: #eee7ff;
+      --text: #2f3445;
+      --muted: #778096;
+      --border: #e6e8ef;
+      --danger: #d86a74;
+      --success: #397a52;
       --warn-bg: #fff8f0;
       --warn-line: #f0c8a0;
       --warn-text: #a05a00;
+      --shadow: 0 10px 30px rgba(67, 71, 105, 0.08);
+      --sidebar-width: 250px;
+      --nav-height: 70px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
-      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
     }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    [hidden] { display: none !important; }
 
-    button, select, input { font: inherit; }
-
-    .navbar {
-      height: 72px;
+    /* ===== TOPBAR ===== */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-height);
+      z-index: 50;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 32px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--line);
-      box-shadow: 0 2px 12px rgba(74, 70, 88, 0.05);
+      padding: 0 28px;
+      background: rgba(255, 255, 255, .94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
     }
-
-    .brand { font-size: 21px; font-weight: 750; }
-    .brand span { color: var(--accent); }
-
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 750; }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 12px;
+      display: grid; place-items: center;
+      color: #fff; background: linear-gradient(135deg, #777bdd, #9b86df);
+      box-shadow: 0 8px 18px rgba(111, 115, 210, .25);
+      font-size: 14px; font-weight: 800;
+    }
     .logout {
-      width: auto;
-      margin: 0;
-      padding: 10px 18px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      color: var(--text);
-      background: #fff;
-      cursor: pointer;
-      transition: 0.2s ease;
+      border: 0; border-radius: 12px; padding: 10px 16px;
+      color: #9f4650; background: #ffecee; font-weight: 650;
+      transition: .2s ease;
     }
-    .logout:hover:not(:disabled) {
-      color: var(--error);
-      border-color: #efd4da;
-      background: #fff7f8;
-    }
-    .logout:disabled { cursor: not-allowed; opacity: 0.65; }
+    .logout:hover:not(:disabled) { background: #ffdde1; }
+    .logout:disabled { cursor: not-allowed; opacity: .65; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 250px minmax(0, 1fr);
-      min-height: calc(100vh - 72px);
-    }
-
+    /* ===== SIDEBAR ===== */
     .sidebar {
-      padding: 28px 18px;
+      position: fixed;
+      top: var(--nav-height);
+      left: 0; bottom: 0;
+      width: var(--sidebar-width);
+      padding: 24px 16px;
       background: var(--sidebar);
-      border-right: 1px solid var(--line);
+      border-right: 1px solid #e2e4f4;
+      overflow-y: auto;
+      z-index: 40;
     }
-
     .role-label {
-      margin: 0 12px 20px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 650;
-      letter-spacing: 1.5px;
+      margin: 0 12px 14px;
+      font-size: 11px; color: #9097aa;
+      letter-spacing: .13em; font-weight: 800;
       text-transform: uppercase;
     }
-
+    .nav-list { display: grid; gap: 7px; }
     .nav-item {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      padding: 12px 14px;
-      border: 0;
-      border-radius: 11px;
-      color: #fff;
-      background: var(--accent);
-      font-weight: 650;
-      text-align: left;
-      cursor: pointer;
-      transition: 0.2s ease;
+      width: 100%; border: 0; background: transparent; color: #646b7f;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 13px;
+      text-align: left; font-weight: 650; transition: .2s ease;
     }
-    .nav-item:hover, .nav-item.active { background: var(--accent-hover); }
+    .nav-item:hover { background: rgba(255, 255, 255, .65); color: var(--primary-dark); }
+    .nav-item.active { background: #fff; color: var(--primary-dark); box-shadow: 0 7px 18px rgba(77, 81, 145, .08); }
+    .nav-icon { width: 23px; text-align: center; font-size: 17px; }
 
-    .content { padding: 44px; }
+    /* ===== MAIN ===== */
+    main {
+      margin-left: var(--sidebar-width);
+      padding: calc(var(--nav-height) + 30px) 32px 40px;
+      min-height: 100vh;
+    }
+    .page-head { margin-bottom: 24px; }
+    h1 { font-size: 28px; margin: 0 0 7px; letter-spacing: -.03em; }
+    .subtitle { color: var(--muted); margin: 0; font-size: 14px; }
 
+    section.page { animation: fade .22s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    /* welcome panel */
     .welcome-panel {
-      padding: 42px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 54px 42px;
       text-align: center;
+      box-shadow: var(--shadow);
     }
-    .welcome-panel h1 { margin-bottom: 8px; color: var(--text); font-size: 28px; }
-    .welcome-panel p, .page-sub { color: var(--muted); }
+    .welcome-mark {
+      width: 62px; height: 62px; margin: 0 auto 18px;
+      border-radius: 18px; display: grid; place-items: center;
+      color: #fff; background: linear-gradient(135deg, #777bdd, #9b86df);
+      box-shadow: 0 10px 22px rgba(111, 115, 210, .28);
+      font-size: 22px; font-weight: 800;
+    }
+    .welcome-panel h1 { margin-bottom: 8px; }
+    .welcome-panel p { color: var(--muted); }
 
-    .page-title { margin-bottom: 7px; font-size: 26px; font-weight: 750; }
-    .page-sub { margin-bottom: 26px; }
-
+    /* cards / forms */
     .card {
       width: min(100%, 680px);
-      padding: 28px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface);
-      box-shadow: 0 8px 26px rgba(74, 70, 88, 0.06);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: var(--shadow);
     }
-
     .form-group { margin-bottom: 20px; }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 650;
-    }
+    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 650; }
 
     select, input[type="text"], input[type="file"] {
       width: 100%;
       padding: 12px 14px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
       outline: none;
       color: var(--text);
       background: #fbfaff;
+      transition: .2s ease;
     }
     select { cursor: pointer; padding-right: 42px; }
     select:focus, input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(143, 121, 198, 0.16);
+      border-color: #aaaeea;
+      box-shadow: 0 0 0 3px #eeeeff;
     }
 
     .primary {
-      width: auto;
-      margin: 4px 0 0;
-      padding: 11px 22px;
-      border: 0;
-      border-radius: 10px;
-      color: #fff;
-      background: var(--accent);
-      font-weight: 650;
-      cursor: pointer;
-      transition: 0.2s ease;
+      margin-top: 4px;
+      padding: 12px 24px;
+      border: 0; border-radius: 12px;
+      color: #fff; background: var(--primary);
+      font-weight: 700; transition: .2s ease;
     }
-    .primary:hover { background: var(--accent-hover); }
+    .primary:hover { background: var(--primary-dark); }
 
-    .message { margin-top: 16px; color: var(--success); font-size: 14px; }
+    .message { margin-top: 16px; color: var(--success); font-size: 14px; font-weight: 600; }
 
     /* hidden employee-id block, shown only when backend asks for it */
     .id-block {
       background: var(--warn-bg);
       border: 1px solid var(--warn-line);
       padding: 12px 14px;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 20px;
     }
     .id-block p { margin: 0 0 8px; font-size: 13px; color: var(--warn-text); }
@@ -184,101 +187,104 @@
       color: var(--text);
     }
 
-    [hidden] { display: none !important; }
-
-    @media (max-width: 760px) {
-      .navbar { height: 64px; padding: 0 18px; }
-      .brand { font-size: 18px; }
-      .layout { display: block; min-height: calc(100vh - 64px); }
-      .sidebar { padding: 16px; border-right: 0; border-bottom: 1px solid var(--line); }
-      .role-label { margin-bottom: 12px; }
-      .content { padding: 28px 18px; }
-      .card { padding: 22px; }
+    @media (max-width: 1050px) { .card { width: 100%; } }
+    @media (max-width: 720px) {
+      :root { --sidebar-width: 78px; }
+      .sidebar { padding: 20px 10px; }
+      .role-label, .nav-text { display: none; }
+      .nav-item { justify-content: center; padding: 13px 8px; }
+      main { padding-left: 18px; padding-right: 18px; }
+      .topbar { padding: 0 16px; }
+      .brand span:last-child { display: none; }
     }
   </style>
 </head>
 <body>
-  <header class="navbar">
-    <div class="brand">Intelli<span>Crew</span></div>
+  <!-- ===== TOPBAR ===== -->
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">IC</span><span>IntelliCrew</span></div>
     <button id="logoutButton" class="logout" type="button">
       <span id="logoutButtonText">Logout</span>
     </button>
   </header>
 
-  <div class="layout">
-    <!-- ===== CONSTANT SIDEBAR ===== -->
-    <aside class="sidebar">
-      <div class="role-label">{{ userType }} Portal</div>
+  <!-- ===== CONSTANT SIDEBAR (buttons only) ===== -->
+  <aside class="sidebar">
+    <p class="role-label">{{ userType }} Portal</p>
+    <nav class="nav-list">
+
+      <!-- Home (all roles) -->
+      <button id="homeButton" class="nav-item active" type="button" data-target="welcomeContent">
+        <span class="nav-icon" aria-hidden="true">H</span>
+        <span class="nav-text">Home</span>
+      </button>
+
+      <!-- Dashboard (MANAGER ONLY, navigates to separate page) -->
+      {% if userType == "manager" %}
+      <button id="dashboardButton" class="nav-item" type="button" data-href="/manager/dashboard">
+        <span class="nav-icon" aria-hidden="true">D</span>
+        <span class="nav-text">Dashboard</span>
+      </button>
+      {% endif %}
 
       <!-- Create Requirement (all roles) -->
-      <button id="createRequirementButton" class="nav-item" type="button"
-              data-target="requirementContent">
-        <span aria-hidden="true">＋</span>
-        Create Requirement
+      <button id="createRequirementButton" class="nav-item" type="button" data-target="requirementContent">
+        <span class="nav-icon" aria-hidden="true">+</span>
+        <span class="nav-text">Create Requirement</span>
       </button>
 
-      <!-- Upload Resume — HR ONLY -->
+      <!-- Upload Resume (HR ONLY) -->
       {% if userType == "hr" %}
-      <button id="uploadResumeButton" class="nav-item" type="button"
-              data-target="resumeContent">
-        <span aria-hidden="true">⭱</span>
-        Upload Resume
+      <button id="uploadResumeButton" class="nav-item" type="button" data-target="resumeContent">
+        <span class="nav-icon" aria-hidden="true">U</span>
+        <span class="nav-text">Upload Resume</span>
       </button>
       {% endif %}
-    </aside>
 
-    <!-- ===== RIGHT CONTENT (swaps by selected nav) ===== -->
-    <main class="content">
-      <!-- welcome -->
-      <section id="welcomeContent" class="welcome-panel">
-        <h1>Welcome to IntelliCrew</h1>
-        <p>Select an option from the left menu to continue.</p>
-      </section>
+    </nav>
+  </aside>
 
-      <!-- create requirement -->
-      <section id="requirementContent" hidden>
-        <h1 class="page-title">Create Requirement</h1>
-        <p class="page-sub">Select a project and the required skill, then submit the requirement.</p>
+  <!-- ===== RIGHT CONTENT (sections only, swap by nav) ===== -->
+  <main>
+    <!-- welcome / home -->
+    <section id="welcomeContent" class="page welcome-panel">
+      <div class="welcome-mark">IC</div>
+      <h1>Welcome to IntelliCrew</h1>
+      <p>Select an option from the left menu to continue.</p>
+    </section>
 
-        <form id="requirementForm" class="card">
-          <div class="form-group">
-            <label for="projectSelect">Add Project</label>
-            <select id="projectSelect" name="project" required>
-              <option value="" selected disabled>Select a project</option>
-            </select>
-          </div>
+    <!-- create requirement (rendered from create_requirement.html) -->
+    <section id="requirementContent" class="page" hidden>
+      {% include "create_requirement.html" %}
+    </section>
 
-          <div class="form-group">
-            <label for="skillSelect">Add Skills</label>
-            <select id="skillSelect" name="skill" required>
-              <option value="" selected disabled>Select a skill</option>
-            </select>
-          </div>
-
-          <button class="primary" type="submit">Submit</button>
-          <p id="formMessage" class="message" role="status" hidden></p>
-        </form>
-      </section>
-
-      <!-- upload resume — HR ONLY (rendered from resume.html) -->
-      {% if userType == "hr" %}
-      <section id="resumeContent" hidden>
-        {% include "resume.html" %}
-      </section>
-      {% endif %}
-    </main>
-  </div>
+    <!-- upload resume (HR ONLY, rendered from resume.html) -->
+    {% if userType == "hr" %}
+    <section id="resumeContent" class="page" hidden>
+      {% include "resume.html" %}
+    </section>
+    {% endif %}
+  </main>
 
   <script>
     /* ---------- sidebar nav switching (sidebar constant, right swaps) ---------- */
     const navItems = document.querySelectorAll(".nav-item");
-    const welcome = document.getElementById("welcomeContent");
 
     navItems.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        // hide welcome + all content sections first
-        welcome.hidden = true;
-        document.querySelectorAll("main.content > section").forEach((sec) => {
+      btn.addEventListener("click", (event) => {
+        // Dashboard button navigates to a separate page
+        if (btn.dataset.href) {
+          window.location.href = btn.dataset.href;
+          return;
+        }
+
+        // buttons with data-target just swap the section on this page
+        if (!btn.dataset.target) return;
+
+        event.preventDefault();
+
+        // hide ALL content sections (including Home/welcome)
+        document.querySelectorAll("main > section").forEach((sec) => {
           sec.hidden = true;
         });
         // show the section this nav item targets
@@ -287,34 +293,10 @@
         // active highlight
         navItems.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
+
+        window.scrollTo(0, 0);
       });
     });
-
-    /* ---------- create requirement ---------- */
-    const requirementForm = document.getElementById("requirementForm");
-    if (requirementForm) {
-      const formMessage = document.getElementById("formMessage");
-      requirementForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const projectSelect = document.getElementById("projectSelect");
-        const skillSelect = document.getElementById("skillSelect");
-        try {
-          const response = await fetch("/api/requirements", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ project: projectSelect.value, skill: skillSelect.value }),
-          });
-          if (!response.ok) throw new Error("API not available");
-          formMessage.textContent = "Requirement submitted successfully.";
-        } catch (error) {
-          const projectName = projectSelect.selectedOptions[0].text;
-          const skillName = skillSelect.selectedOptions[0].text;
-          formMessage.textContent = `Requirement selected for ${projectName} with ${skillName}.`;
-        }
-        formMessage.hidden = false;
-      });
-    }
 
     /* ---------- logout ---------- */
     const logoutButton = document.getElementById("logoutButton");

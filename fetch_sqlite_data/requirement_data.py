@@ -5,12 +5,16 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-# same location logic as db.py / data_seed.py
-BASE_DIR = Path(__file__).resolve().parent
+# requirement_data.py lives inside fetch_sqlite_data/, so go UP one level
+# to the project root, then into data/ — same logic as dashboard_data.py
+BASE_DIR = Path(__file__).resolve().parent.parent
 DATABASE_FILE = BASE_DIR / "data" / "employee_records.db"
 
 
 def _connect() -> sqlite3.Connection:
+    # clear error if the DB path is ever wrong again
+    if not DATABASE_FILE.exists():
+        raise FileNotFoundError(f"DB not found at: {DATABASE_FILE}")
     conn = sqlite3.connect(DATABASE_FILE)
     conn.row_factory = sqlite3.Row          # rows behave like dicts
     return conn

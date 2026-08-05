@@ -1,0 +1,121 @@
+<!-- create_requirement.html — included inside home.html -->
+
+<div class="page-head">
+  <h1>Create Requirement</h1>
+  <p class="subtitle">Select a project to view the skills required for it.</p>
+</div>
+
+<form id="requirementForm" class="card">
+  <div class="form-group">
+    <label for="projectSelect">Select Project</label>
+    <select id="projectSelect" name="project" required>
+      <option value="" selected disabled>Select a project</option>
+    </select>
+  </div>
+
+  <!-- skills of the selected project appear here as tags -->
+  <div class="form-group" id="skillsGroup" hidden>
+    <label>Required Skills</label>
+    <div id="skillTags" class="skill-tags"></div>
+  </div>
+
+  <button class="primary" type="submit">Submit</button>
+  <p id="formMessage" class="message" role="status" hidden></p>
+</form>
+
+<style>
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-tag {
+    background: var(--lavender);
+    color: var(--primary-dark);
+    border: 1px solid #ddd8f7;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .skill-empty { color: var(--muted); font-size: 13px; }
+</style>
+
+<script>
+(function () {
+  const projectSelect   = document.getElementById("projectSelect");
+  const skillsGroup     = document.getElementById("skillsGroup");
+  const skillTags       = document.getElementById("skillTags");
+  const requirementForm = document.getElementById("requirementForm");
+  const formMessage     = document.getElementById("formMessage");
+
+  // ---- variables we keep for later use ----
+  let projectsCache   = [];   // full project list from DB
+  let selectedProject = null; // the chosen project object
+  let selectedSkills  = [];   // <-- skills of chosen project (use later)
+
+  // 1) load projects into the dropdown
+  async function loadProjects() {
+    try {
+      const res  = await fetch("/api/projects", { credentials: "same-origin" });
+      const data = await res.json();
+      projectsCache = data.projects || [];
+
+      projectsCache.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p.project_id;
+        opt.textContent = p.project_name;
+        projectSelect.appendChild(opt);
+      });
+    } catch (e) {
+      console.error("Could not load projects:", e);
+    }
+  }
+
+  // 2) when a project is picked -> show its skills as tags
+  projectSelect.addEventListener("change", () => {
+    selectedProject = projectsCache.find(
+      (p) => String(p.project_id) === projectSelect.value
+    );
+    selectedSkills = selectedProject ? selectedProject.skills : [];
+
+    skillTags.innerHTML = "";
+    if (selectedSkills.length) {
+      selectedSkills.forEach((skill) => {
+        const tag = document.createElement("span");
+        tag.className = "skill-tag";
+        tag.textContent = skill;
+        skillTags.appendChild(tag);
+      });
+    } else {
+      skillTags.innerHTML =
+        '<span class="skill-empty">No skills listed for this project.'
+    }
+    skillsGroup.hidden = false;
+  });
+
+  // 3) submit -> send project + its skills
+  requirementForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!selectedProject) return;
+
+    try {
+      const res = await fetch("/api/requirements", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: selectedProject.project_id,
+          project_name: selectedProject.project_name,
+          skills: selectedSkills,           // sending the skills too
+        }),
+      });
+      if (!res.ok) throw new Error("API not available");
+      formMessage.textContent = "Requirement submitted successfully.";
+    } catch (err) {
+      formMessage.textContent =
+        "Requirement selected for " + selectedProject.project_name +
+        " with skills: " + selectedSkills.join(", ") + ".";
+    }
+    formMessage.hidden = false;
+  });
+
+  loadProjects();
+})();
+</script>
