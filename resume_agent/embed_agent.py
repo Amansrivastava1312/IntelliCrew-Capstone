@@ -11,8 +11,8 @@ from typing import TypedDict, List
 
 from langgraph.graph import StateGraph, END
 
-from Emp_DataAgent.doc_loader import load_text, embed_text
-from Emp_DataAgent.db import (
+from document_loader.doc_loader import load_text, embed_text
+from resume_agent.db import (
     get_resume_log_by_name,   # find row by file_name (or None)
     log_resume,               # create a row if file has no entry
     mark_resume_ingested,     # set ingested = 1

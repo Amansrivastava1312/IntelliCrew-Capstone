@@ -1,9 +1,9 @@
 from typing import TypedDict, Optional
 from langgraph.graph import StateGraph, END
 
-from Emp_DataAgent.db import upsert_employee, get_or_create_skill, add_employee_skill
-from Emp_DataAgent.doc_loader import load_text, embed_text
-from Emp_DataAgent.llm_extractor import extract_info
+from resume_agent.db import upsert_employee, get_or_create_skill, add_employee_skill
+from document_loader.doc_loader import load_text, embed_text
+from resume_agent.llm_extractor import extract_info
 
 
 # shared state passed between nodes

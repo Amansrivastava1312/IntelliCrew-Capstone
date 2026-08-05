@@ -18,7 +18,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from security import verify_password
 from fetch_sqlite_data.dashboard_data import get_manager_dashboard
-from Emp_DataAgent.embed_agent import run_embedding_agent
+from resume_agent.embed_agent import run_embedding_agent
 
 # --- orchestrator replaces the direct resume_agent import ---
 from orchestrator.orchestrator import run as orchestrate
