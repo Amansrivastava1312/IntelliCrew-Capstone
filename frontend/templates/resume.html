@@ -28,6 +28,7 @@
     cursor: pointer; background: #fcfbff; transition: .25s;
 }
 .upload-box:hover, .upload-box.dragover { background: var(--primary-light); border-color: var(--primary); }
+.upload-box[hidden] { display: none; }
 .upload-icon { font-size: 56px; margin-bottom: 8px; }
 .upload-box h3 { margin: 0; color: var(--text); }
 .upload-box p  { color: var(--muted); }
@@ -35,6 +36,7 @@
 input[type="file"] { display: none; }
 
 .file-list { margin-top: 14px; padding: 0; list-style: none; }
+.file-list[hidden] { display: none; }
 .file-list li {
     padding: 8px 12px; background: #f8f6fc; border: 1px solid var(--line);
     border-radius: 10px; margin-bottom: 6px; color: var(--text); font-size: 14px;
@@ -48,11 +50,7 @@ input[type="file"] { display: none; }
 }
 .primary:hover { background: var(--primary-hover); }
 .primary:disabled { opacity: .6; cursor: not-allowed; }
-
-#resumeResult {
-    margin-top: 16px; padding: 12px; border-radius: 10px;
-    background: #f8f6fc; white-space: pre-wrap; word-break: break-word;
-}
+.primary[hidden] { display: none; }
 
 /* loader overlay */
 .overlay {
@@ -68,6 +66,30 @@ input[type="file"] { display: none; }
 }
 .overlay p { margin-top: 14px; color: var(--text); font-weight: 600; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* success screen */
+.success-box {
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: 30px 10px; text-align: center;
+}
+.success-box[hidden] { display: none; }
+.tick {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--primary-light);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 44px; color: var(--success);
+    animation: pop .4s ease;
+}
+.success-box h3 { margin: 16px 0 4px; color: var(--text); }
+.success-box p  { color: var(--muted); margin: 0; }
+.upload-more {
+    margin-top: 22px; padding: 12px 26px; border: none;
+    border-radius: 14px; background: var(--primary); color: white;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.upload-more:hover { background: var(--primary-hover); }
+@keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 </style>
 
 <h1 class="page-title">Upload Resumes</h1>
@@ -81,6 +103,7 @@ input[type="file"] { display: none; }
         <p id="overlayText">Processing resumes...</p>
     </div>
 
+    <!-- upload area -->
     <label id="uploadBox" class="upload-box" for="resumeFile">
         <div class="upload-icon">📄</div>
         <h3>Upload Resumes</h3>
@@ -92,20 +115,28 @@ input[type="file"] { display: none; }
 
     <button id="submitBtn" class="primary" type="submit">Process Resumes</button>
 
-    <div id="resumeResult"></div>
+    <!-- success screen (hidden until done) -->
+    <div id="successBox" class="success-box" hidden>
+        <div class="tick">✔</div>
+        <h3>Done!</h3>
+        <p>Your resumes were processed successfully.</p>
+        <button type="button" id="uploadMoreBtn" class="upload-more">Upload More</button>
+    </div>
+
 </form>
 
 <script>
 const resumeForm = document.getElementById("resumeForm");
 
 if (resumeForm) {
-    const resumeResult = document.getElementById("resumeResult");
-    const resumeFile   = document.getElementById("resumeFile");
-    const uploadBox    = document.getElementById("uploadBox");
-    const fileList     = document.getElementById("fileList");
-    const overlay      = document.getElementById("overlay");
-    const overlayText  = document.getElementById("overlayText");
-    const submitBtn    = document.getElementById("submitBtn");
+    const resumeFile    = document.getElementById("resumeFile");
+    const uploadBox     = document.getElementById("uploadBox");
+    const fileList      = document.getElementById("fileList");
+    const overlay       = document.getElementById("overlay");
+    const overlayText   = document.getElementById("overlayText");
+    const submitBtn     = document.getElementById("submitBtn");
+    const successBox    = document.getElementById("successBox");
+    const uploadMoreBtn = document.getElementById("uploadMoreBtn");
 
     // show the list of selected files
     function renderFiles() {
@@ -119,6 +150,7 @@ if (resumeForm) {
 
     resumeFile.addEventListener("change", renderFiles);
 
+    // drag & drop styling
     ["dragenter", "dragover"].forEach(ev => {
         uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.add("dragover"); });
     });
@@ -126,23 +158,23 @@ if (resumeForm) {
         uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.remove("dragover"); });
     });
 
+    // handle dropped files (supports multiple)
     uploadBox.addEventListener("drop", e => {
         if (e.dataTransfer.files.length) {
-            resumeFile.files = e.dataTransfer.files;   // supports multiple
+            resumeFile.files = e.dataTransfer.files;
             renderFiles();
         }
     });
 
+    // submit -> upload -> show green tick
     resumeForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         if (!resumeFile.files.length) return;
 
         // turn on loader
         overlay.hidden = false;
         submitBtn.disabled = true;
         overlayText.textContent = `Processing ${resumeFile.files.length} resume(s)...`;
-        resumeResult.textContent = "";
 
         const data = new FormData();
         [...resumeFile.files].forEach(f => data.append("files", f));  // key must match backend "files"
@@ -153,26 +185,31 @@ if (resumeForm) {
                 credentials: "same-origin",
                 body: data
             });
-            const json = await res.json();
+            await res.json();   // just wait for it to finish, no details shown
 
-            // simple readable summary
-            let out = `Total: ${json.total} | Processed: ${json.processed} | Need ID: ${json.need_employee_id}\n\n`;
-            json.results.forEach(r => {
-                if (r.status === "need_employee_id") {
-                    out += `⚠️ ${r.file} → No Employee ID found\n`;
-                } else {
-                    out += `✅ ${r.file} → ${r.employee_id} | ${r.full_name} | ${r.designation} | skills: ${r.skills_found}\n`;
-                }
-            });
-            resumeResult.textContent = out;
+            // ---- SUCCESS: hide upload UI, show green tick ----
+            uploadBox.hidden = true;
+            fileList.hidden = true;
+            submitBtn.hidden = true;
+            successBox.hidden = false;
 
         } catch (err) {
-            resumeResult.textContent = "Error: " + err.message;
+            // on error keep the form so user can retry
+            alert("Error: " + err.message);
         } finally {
-            // turn off loader
             overlay.hidden = true;
             submitBtn.disabled = false;
         }
+    });
+
+    // ---- Upload More: reset everything back to the upload screen ----
+    uploadMoreBtn.addEventListener("click", () => {
+        resumeForm.reset();          // clears the file input
+        fileList.innerHTML = "";     // clear the file list
+        successBox.hidden = true;    // hide success screen
+        uploadBox.hidden = false;    // show upload box again
+        fileList.hidden = false;
+        submitBtn.hidden = false;    // show the process button again
     });
 }
 </script>

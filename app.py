@@ -273,3 +273,62 @@ import fetch_sqlite_data.requirement_data as requirement_data
 def api_projects():
     # returns: {"projects": [{project_id, project_name, client, skills:[...]}, ...]}
     return {"projects": requirement_data.get_projects()}
+
+
+# ---------- video summarizer (any logged-in user) — goes through orchestrator ----------
+VIDEO_DIR = BASE_DIR / "videos"
+os.makedirs(VIDEO_DIR, exist_ok=True)
+
+# ---------- video summarizer page (any logged-in user) ----------
+@app.get("/summarizer", response_class=HTMLResponse, include_in_schema=False)
+def summarizer_page(request: Request, sid: str | None = Cookie(None, alias=COOKIE)):
+    s = get_session(sid)
+    if not s:
+        return RedirectResponse("/", status_code=303)   # not logged in -> login
+    return templates.TemplateResponse(
+        request=request,
+        name="summarizer.html",
+        context={"userType": s["role"].lower(), "userId": s["user_id"], "userName": s["name"]},
+    )
+
+@app.post("/api/summarize-video")
+async def summarize_video(
+    file: UploadFile = File(None),      # optional: a video file
+    link: str = Form(None),            # optional: a YouTube / video URL
+    sid: str | None = Cookie(None, alias=COOKIE),
+):
+    require_session(sid)   # any logged-in user can summarize
+
+    # --- CASE A: a video file was uploaded -> save it in videos/ ---
+    if file is not None and file.filename:
+        save_path = os.path.join(VIDEO_DIR, file.filename)
+        with open(save_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        source = save_path
+        has_file = True
+
+    # --- CASE B: a link was pasted -> pass the URL straight through ---
+    elif link and link.strip():
+        source = link.strip()
+        has_file = False
+
+    else:
+        raise HTTPException(400, "Please upload a video file or paste a link.")
+
+    # --- build the state the summarizer graph expects ---
+    state = {
+        "source": source,
+        "is_url": False,
+        "transcript": "",
+        "summary": "",
+        "status": "started",
+    }
+
+    # keyword makes the orchestrator pick summarizer_agent (not resume_agent)
+    result = orchestrate(state, user_input="summarize video", has_file=has_file)
+
+    return {
+        "handled_by": result.get("handled_by"),
+        "summary": result.get("summary"),
+        "status": result.get("status"),
+    }

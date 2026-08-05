@@ -23,4 +23,7 @@ docx2txt==0.8
 
 
 langchain_huggingface
-
+transformers
+torch
+youtube-transcript-api
+openai-whisper

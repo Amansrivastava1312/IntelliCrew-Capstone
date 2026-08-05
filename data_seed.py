@@ -169,6 +169,20 @@ CREATE TABLE IF NOT EXISTS resume_logs (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+
+CREATE TABLE IF NOT EXISTS agent_logs (
+    log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_name VARCHAR(60) NOT NULL,       -- which agent ran
+    chosen_by VARCHAR(20),                 -- 'llm' / 'keyword' / 'override' / 'run'
+    reason TEXT,                           -- LLM reason or note
+    user_input TEXT,                       -- the request text (if any)
+    has_file INTEGER NOT NULL DEFAULT 0,   -- 1 if a file was attached
+    source TEXT,                           -- file path / link / query
+    status VARCHAR(30),                    -- done / need_employee_id / error
+    handled_by VARCHAR(60),                -- agent that returned the result
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS manager (
     manager_id VARCHAR(20) PRIMARY KEY,
     full_name VARCHAR(120) NOT NULL,

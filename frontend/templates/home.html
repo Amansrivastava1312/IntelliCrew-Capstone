@@ -233,6 +233,12 @@
         <span class="nav-text">Create Requirement</span>
       </button>
 
+            <!-- Video Summarizer (all roles) -->
+      <button id="summarizerButton" class="nav-item" type="button" data-target="summarizerContent">
+        <span class="nav-icon" aria-hidden="true">V</span>
+        <span class="nav-text">Video Summarizer</span>
+      </button>
+
       <!-- Upload Resume (HR ONLY) -->
       {% if userType == "hr" %}
       <button id="uploadResumeButton" class="nav-item" type="button" data-target="resumeContent">
@@ -264,6 +270,11 @@
       {% include "resume.html" %}
     </section>
     {% endif %}
+
+        <!-- video summarizer (rendered from summarizer.html) -->
+    <section id="summarizerContent" class="page" hidden>
+      {% include "summarizer.html" %}
+    </section>
   </main>
 
   <script>

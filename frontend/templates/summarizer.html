@@ -1,0 +1,289 @@
+<style>
+:root {
+    --bg: #f8f6fc;
+    --surface: #ffffff;
+    --primary: #b39ddb;
+    --primary-hover: #9f8bc8;
+    --primary-light: #ede7f6;
+    --text: #4f4a5a;
+    --muted: #8f88a0;
+    --line: #e9e2f3;
+    --success: #5f9f7c;
+    --error: #c06c84;
+}
+
+.page-title { text-align: center; font-size: 30px; color: var(--text); margin-bottom: 10px; }
+.page-sub   { text-align: center; color: var(--muted); margin-bottom: 30px; }
+
+.card {
+    max-width: 750px; margin: 0 auto; padding: 35px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 24px; box-shadow: 0 10px 40px rgba(94,75,128,.08);
+    position: relative;
+}
+
+/* wider card ONLY for the summary view — upload form stays normal */
+.card.wide {
+    max-width: 1150px;      /* much wider than the 750px upload form */
+    width: 92%;             /* uses most of the screen on big monitors */
+}
+
+/* toggle tabs */
+.tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+.tab {
+    flex: 1; padding: 11px; text-align: center; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: #fcfbff; color: var(--muted); font-weight: 600; transition: .2s;
+}
+.tab.active { background: var(--primary-light); color: var(--text); border-color: var(--primary); }
+.pane[hidden] { display: none; }
+
+/* upload box */
+.upload-box {
+    border: 2px dashed #d7caec; border-radius: 20px; min-height: 200px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    cursor: pointer; background: #fcfbff; transition: .25s; text-align: center;
+}
+.upload-box:hover, .upload-box.dragover { background: var(--primary-light); border-color: var(--primary); }
+.upload-box[hidden] { display: none; }
+.upload-icon { font-size: 52px; margin-bottom: 8px; }
+.upload-box h3 { margin: 0; color: var(--text); }
+.upload-box p  { color: var(--muted); }
+input[type="file"] { display: none; }
+.file-name { margin-top: 12px; color: var(--text); font-size: 14px; text-align: center; }
+
+/* link input */
+.link-input {
+    width: 100%; padding: 14px 16px; border: 1px solid var(--line);
+    border-radius: 14px; font-size: 15px; color: var(--text); background: #fcfbff;
+}
+.link-input:focus { outline: none; border-color: var(--primary); background: #fff; }
+
+.primary {
+    width: 100%; margin-top: 22px; padding: 14px; border: none;
+    border-radius: 14px; background: var(--primary); color: white;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+}
+.primary:hover { background: var(--primary-hover); }
+.primary:disabled { opacity: .6; cursor: not-allowed; }
+.primary[hidden] { display: none; }
+
+/* small "view previous" link-button under the form */
+.ghost-btn {
+    display: block; width: 100%; margin-top: 12px; padding: 11px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: #fcfbff; color: var(--primary-hover);
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: .2s;
+}
+.ghost-btn:hover { background: var(--primary-light); border-color: var(--primary); }
+.ghost-btn[hidden] { display: none; }
+
+/* loader overlay */
+.overlay {
+    position: absolute; inset: 0; background: rgba(255,255,255,.85);
+    border-radius: 24px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; z-index: 5;
+}
+.overlay[hidden] { display: none; }
+.spinner {
+    width: 46px; height: 46px; border: 5px solid var(--primary-light);
+    border-top-color: var(--primary); border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+.overlay p { margin-top: 14px; color: var(--text); font-weight: 600; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== SUMMARY VIEW (separate wide screen) ===== */
+.summary-view[hidden] { display: none; }
+.summary-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; gap: 12px;
+}
+.summary-header h2 { margin: 0; font-size: 22px; color: var(--text); }
+.summarize-more {
+    padding: 11px 20px; border: none; border-radius: 12px;
+    background: var(--primary); color: white;
+    font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.summarize-more:hover { background: var(--primary-hover); }
+
+/* big readable summary text */
+.summary-text {
+    padding: 28px 40px; border-radius: 16px;
+    background: #fcfbff; border: 1px solid var(--line);
+    color: var(--text); font-size: 16.5px; line-height: 1.9;
+    white-space: pre-wrap; word-break: break-word;
+    min-height: 260px; text-align: left; max-width: 100%;
+}
+</style>
+
+<h1 class="page-title">🎬 Video Summarizer</h1>
+<p class="page-sub">Upload a video or paste a link — the agent transcribes and summarizes it.</p>
+
+<!-- ============ SCREEN 1: UPLOAD FORM (normal width) ============ -->
+<form id="summaryForm" class="card">
+
+    <!-- loader -->
+    <div id="sumOverlay" class="overlay" hidden>
+        <div class="spinner"></div>
+        <p id="sumOverlayText">Summarizing... this can take a while on CPU</p>
+    </div>
+
+    <!-- toggle tabs -->
+    <div class="tabs">
+        <div class="tab active" id="sumTabFile">📄 Upload Video</div>
+        <div class="tab" id="sumTabLink">🔗 Paste Link</div>
+    </div>
+
+    <!-- PANE A: file upload -->
+    <div class="pane" id="sumPaneFile">
+        <label id="sumUploadBox" class="upload-box" for="videoFile">
+            <div class="upload-icon">🎞️</div>
+            <h3>Upload Video</h3>
+            <p>Drag & Drop or Click to Browse (.mp4 / .mkv / .avi)</p>
+            <input type="file" id="videoFile" accept=".mp4,.mkv,.avi,.mov" />
+        </label>
+        <div id="sumFileName" class="file-name"></div>
+    </div>
+
+    <!-- PANE B: link -->
+    <div class="pane" id="sumPaneLink" hidden>
+        <input type="text" id="videoLink" class="link-input"
+               placeholder="Paste a YouTube or video URL here..." />
+    </div>
+
+    <button id="sumSubmitBtn" class="primary" type="submit">Summarize</button>
+
+    <!-- view previous summary (only shows if one exists) -->
+    <button type="button" id="sumViewPrevBtn" class="ghost-btn" hidden>👁️ View Previous Summary</button>
+</form>
+
+<!-- ============ SCREEN 2: SUMMARY VIEW (wide) ============ -->
+<div id="sumView" class="card wide summary-view" hidden>
+    <div class="summary-header">
+        <h2>📝 Summary</h2>
+        <button type="button" id="sumMoreBtn" class="summarize-more">➕ Summarize More</button>
+    </div>
+    <div id="sumResultText" class="summary-text"></div>
+</div>
+
+<script>
+const summaryForm = document.getElementById("summaryForm");
+
+if (summaryForm) {
+    const tabFile   = document.getElementById("sumTabFile");
+    const tabLink   = document.getElementById("sumTabLink");
+    const paneFile  = document.getElementById("sumPaneFile");
+    const paneLink  = document.getElementById("sumPaneLink");
+
+    const uploadBox = document.getElementById("sumUploadBox");
+    const videoFile = document.getElementById("videoFile");
+    const fileName  = document.getElementById("sumFileName");
+    const videoLink = document.getElementById("videoLink");
+
+    const submitBtn   = document.getElementById("sumSubmitBtn");
+    const overlay     = document.getElementById("sumOverlay");
+    const viewPrevBtn = document.getElementById("sumViewPrevBtn");
+
+    const sumView     = document.getElementById("sumView");
+    const resultText  = document.getElementById("sumResultText");
+    const moreBtn     = document.getElementById("sumMoreBtn");
+
+    let mode = "file";           // "file" or "link"
+    let lastSummary = "";        // stores ONLY the latest summary (old gets replaced)
+
+    // ---- show the upload form, hide the summary view ----
+    function showForm() {
+        sumView.hidden = true;
+        summaryForm.hidden = false;
+        viewPrevBtn.hidden = !lastSummary;   // show "view previous" only if we have one
+    }
+
+    // ---- show the summary view (wide, centered) ----
+    function showSummary(text) {
+        resultText.textContent = text;
+        summaryForm.hidden = true;
+        sumView.hidden = false;
+        window.scrollTo(0, 0);
+    }
+
+    // ---- tab switching ----
+    tabFile.addEventListener("click", () => {
+        mode = "file";
+        tabFile.classList.add("active"); tabLink.classList.remove("active");
+        paneFile.hidden = false; paneLink.hidden = true;
+    });
+    tabLink.addEventListener("click", () => {
+        mode = "link";
+        tabLink.classList.add("active"); tabFile.classList.remove("active");
+        paneLink.hidden = false; paneFile.hidden = true;
+    });
+
+    // ---- show selected file name ----
+    videoFile.addEventListener("change", () => {
+        fileName.textContent = videoFile.files.length ? "Selected: " + videoFile.files[0].name : "";
+    });
+
+    // ---- drag & drop ----
+    ["dragenter", "dragover"].forEach(ev =>
+        uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.add("dragover"); }));
+    ["dragleave", "drop"].forEach(ev =>
+        uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.remove("dragover"); }));
+    uploadBox.addEventListener("drop", e => {
+        if (e.dataTransfer.files.length) {
+            videoFile.files = e.dataTransfer.files;
+            fileName.textContent = "Selected: " + videoFile.files[0].name;
+        }
+    });
+
+    // ---- submit -> summarize ----
+    summaryForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const data = new FormData();
+        if (mode === "file") {
+            if (!videoFile.files.length) { alert("Please choose a video file."); return; }
+            data.append("file", videoFile.files[0]);
+        } else {
+            if (!videoLink.value.trim()) { alert("Please paste a link."); return; }
+            data.append("link", videoLink.value.trim());
+        }
+
+        // loader on
+        overlay.hidden = false;
+        submitBtn.disabled = true;
+
+        try {
+            const res = await fetch("/api/summarize-video", {
+                method: "POST",
+                credentials: "same-origin",   // send the session cookie
+                body: data
+            });
+            const json = await res.json();
+
+            const text = json.summary || json.error || json.detail || "No summary returned.";
+
+            lastSummary = text;          // NEW summary replaces the old one
+            showSummary(text);           // jump to the wide summary view
+
+        } catch (err) {
+            alert("Error: " + err.message);
+        } finally {
+            overlay.hidden = true;
+            submitBtn.disabled = false;
+        }
+    });
+
+    // ---- "Summarize More" (top-right) -> back to upload form ----
+    moreBtn.addEventListener("click", () => {
+        summaryForm.reset();
+        fileName.textContent = "";
+        showForm();                  // this also reveals the "View Previous" button
+    });
+
+    // ---- "View Previous Summary" -> show the last saved summary ----
+    viewPrevBtn.addEventListener("click", () => {
+        if (lastSummary) showSummary(lastSummary);
+    });
+}
+</script>
