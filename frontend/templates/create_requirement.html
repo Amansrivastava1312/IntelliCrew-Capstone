@@ -23,6 +23,22 @@
       <button class="primary" type="submit">Submit</button>
       <p id="formMessage" class="message" role="status" hidden></p>
     </form>
+
+    <section id="skillGapReportCard" class="card skill-gap-report-card" hidden>
+      <div class="report-head">
+        <div>
+          <span class="report-label">Project Analysis</span>
+          <h2>Report</h2>
+        </div>
+        <span class="report-badge">AI Generated</span>
+      </div>
+      <p id="reportProjectName" class="report-project-name"></p>
+      <div id="skillGapReportContent" class="report-content"></div>
+      <p class="report-note">
+        This report summarizes project-level skill coverage and recurring gaps.
+        Final employee selection should be reviewed by the manager.
+      </p>
+    </section>
   </section>
 
   <section id="matchResults" class="card match-results" hidden>
@@ -45,6 +61,16 @@
   </section>
 </div>
 
+<div id="completionPopup" class="completion-popup" hidden>
+  <div class="completion-popup-backdrop"></div>
+  <div class="completion-popup-card" role="dialog" aria-modal="true" aria-labelledby="completionTitle">
+    <div class="completion-icon" aria-hidden="true">✓</div>
+    <h2 id="completionTitle">Completed</h2>
+    <p id="completionMessage">Selected employees have been saved successfully.</p>
+    <button id="completionOkButton" class="primary" type="button">Done</button>
+  </div>
+</div>
+
 <style>
   .requirement-layout {
     display: grid;
@@ -53,196 +79,78 @@
     gap: 24px;
     width: 100%;
   }
-
-  .requirement-left,
-  .match-results {
-    min-width: 0;
-  }
-
-  .requirement-form,
-  .match-results {
-    margin: 0;
-  }
-
-  .skill-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
+  .requirement-left { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .match-results { min-width: 0; }
+  .requirement-form, .match-results { margin: 0; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
   .skill-tag {
-    padding: 6px 12px;
-    border: 1px solid #ddd8f7;
-    border-radius: 999px;
-    background: var(--lavender);
-    color: var(--primary-dark);
-    font-size: 13px;
-    font-weight: 600;
+    padding: 6px 12px; border: 1px solid #ddd8f7; border-radius: 999px;
+    background: var(--lavender); color: var(--primary-dark); font-size: 13px; font-weight: 600;
   }
-
-  .skill-empty,
-  .results-subtitle {
-    color: var(--muted);
-    font-size: 13px;
-  }
-
-  .results-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .results-head h2 {
-    margin: 0 0 4px;
-  }
-
-  .results-subtitle {
-    margin: 0;
-  }
-
+  .skill-empty, .results-subtitle { color: var(--muted); font-size: 13px; }
+  .results-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .results-head h2 { margin: 0 0 4px; }
+  .results-subtitle { margin: 0; }
   .selected-count {
-    flex: 0 0 auto;
-    padding: 6px 11px;
-    border-radius: 999px;
-    background: #f0edff;
-    color: var(--primary-dark);
-    font-size: 12px;
-    font-weight: 700;
+    flex: 0 0 auto; padding: 6px 11px; border-radius: 999px;
+    background: #f0edff; color: var(--primary-dark); font-size: 12px; font-weight: 700;
   }
-
-  .employee-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
+  .employee-list { display: flex; flex-direction: column; gap: 12px; }
   .employee-match {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 16px;
-    padding: 16px;
-    border: 1px solid #e4e5ec;
-    border-radius: 14px;
-    background: #fff;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; padding: 16px;
+    border: 1px solid #e4e5ec; border-radius: 14px; background: #fff;
     transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   }
-
-  .employee-match.is-selected {
-    border-color: #7770db;
-    background: #f8f7ff;
-    box-shadow: 0 0 0 2px rgba(119, 112, 219, 0.12);
-  }
-
-  .employee-main {
-    min-width: 0;
-  }
-
-  .employee-title-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .employee-title-row h3 {
-    margin: 0;
-    font-size: 17px;
-  }
-
-  .rank-badge,
-  .match-badge {
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  .rank-badge {
-    background: #ece9ff;
-    color: #5148c8;
-  }
-
-  .match-badge {
-    background: #e9f8ef;
-    color: #237a43;
-  }
-
-  .employee-meta,
-  .employee-description {
-    margin: 5px 0;
-    line-height: 1.45;
-  }
-
-  .employee-meta {
-    font-size: 13px;
-  }
-
-  .employee-description {
-    color: #4f5565;
-    font-size: 13px;
-  }
-
+  .employee-match.is-selected { border-color: #7770db; background: #f8f7ff; box-shadow: 0 0 0 2px rgba(119,112,219,.12); }
+  .employee-main { min-width: 0; }
+  .employee-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+  .employee-title-row h3 { margin: 0; font-size: 17px; }
+  .rank-badge, .match-badge { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .rank-badge { background: #ece9ff; color: #5148c8; }
+  .match-badge { background: #e9f8ef; color: #237a43; }
+  .employee-meta, .employee-description { margin: 5px 0; line-height: 1.45; }
+  .employee-meta { font-size: 13px; }
+  .employee-description { color: #4f5565; font-size: 13px; }
   .select-employee-button {
-    align-self: center;
-    min-width: 94px;
-    padding: 9px 14px;
-    border: 1px solid #6f68d8;
-    border-radius: 9px;
-    background: #fff;
-    color: #5a53cb;
-    font-weight: 700;
-    cursor: pointer;
+    align-self: center; min-width: 94px; padding: 9px 14px; border: 1px solid #6f68d8;
+    border-radius: 9px; background: #fff; color: #5a53cb; font-weight: 700; cursor: pointer;
   }
-
-  .select-employee-button.selected {
-    background: #6f68d8;
-    color: #fff;
-  }
-
+  .select-employee-button.selected { background: #6f68d8; color: #fff; }
   .save-area {
-    position: sticky;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 16px;
-    margin-top: 18px;
-    padding-top: 16px;
-    border-top: 1px solid #e4e5ec;
-    background: #fff;
+    position: sticky; bottom: 0; display: flex; align-items: center; justify-content: flex-end;
+    gap: 16px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #e4e5ec; background: #fff;
   }
+  .save-area .message { margin: 0 auto 0 0; }
+  .save-button:disabled { cursor: not-allowed; opacity: .55; }
 
-  .save-area .message {
-    margin: 0 auto 0 0;
-  }
+  .skill-gap-report-card { margin: 0; padding: 22px; border: 1px solid #ddd8f7; background: linear-gradient(145deg,#f8f7ff,#fff); }
+  .report-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid #e8e5f7; }
+  .report-head h2 { margin: 3px 0 0; color: var(--primary-dark); font-size: 21px; }
+  .report-label { color: #757b8d; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .report-badge { padding: 5px 10px; border-radius: 999px; background: #ece9ff; color: #5148c8; font-size: 11px; font-weight: 700; }
+  .report-project-name { margin: 16px 0 10px; color: #373c4b; font-size: 14px; font-weight: 700; }
+  .report-content { color: #4f5565; font-size: 14px; line-height: 1.7; }
+  .report-content p { margin: 0 0 12px; }
+  .report-content p:last-child { margin-bottom: 0; }
+  .report-content ul { margin: 0 0 4px; padding-left: 20px; }
+  .report-content li { margin: 0 0 8px; }
+  .report-content li:last-child { margin-bottom: 0; }
+  .report-note { margin: 18px 0 0; padding: 11px 13px; border-left: 3px solid #7770db; border-radius: 0 8px 8px 0; background: #f3f1ff; color: #5f6474; font-size: 12px; line-height: 1.5; }
 
-  .save-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-  }
+  .completion-popup[hidden] { display: none; }
+  .completion-popup { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; }
+  .completion-popup-backdrop { position: absolute; inset: 0; background: rgba(31,35,48,.48); backdrop-filter: blur(3px); }
+  .completion-popup-card { position: relative; z-index: 1; width: min(390px,100%); padding: 30px; border-radius: 18px; background: #fff; text-align: center; box-shadow: 0 22px 60px rgba(35,31,74,.22); }
+  .completion-icon { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 16px; border-radius: 50%; background: #e9f8ef; color: #237a43; font-size: 30px; font-weight: 800; }
+  .completion-popup-card h2 { margin: 0 0 8px; color: var(--primary-dark); font-size: 24px; }
+  .completion-popup-card p { margin: 0 0 22px; color: #5f6474; line-height: 1.55; }
+  .completion-popup-card .primary { width: 100%; }
 
-  @media (max-width: 1050px) {
-    .requirement-layout {
-      grid-template-columns: 1fr;
-    }
-  }
-
+  @media (max-width: 1050px) { .requirement-layout { grid-template-columns: 1fr; } }
   @media (max-width: 650px) {
-    .employee-match {
-      grid-template-columns: 1fr;
-    }
-
-    .select-employee-button {
-      width: 100%;
-    }
-
-    .save-area {
-      align-items: stretch;
-      flex-direction: column;
-    }
+    .employee-match { grid-template-columns: 1fr; }
+    .select-employee-button { width: 100%; }
+    .save-area { align-items: stretch; flex-direction: column; }
   }
 </style>
 
@@ -261,6 +169,12 @@
   const saveArea = document.getElementById("saveArea");
   const saveMessage = document.getElementById("saveMessage");
   const saveSelectionsButton = document.getElementById("saveSelectionsButton");
+  const skillGapReportCard = document.getElementById("skillGapReportCard");
+  const reportProjectName = document.getElementById("reportProjectName");
+  const skillGapReportContent = document.getElementById("skillGapReportContent");
+  const completionPopup = document.getElementById("completionPopup");
+  const completionMessage = document.getElementById("completionMessage");
+  const completionOkButton = document.getElementById("completionOkButton");
 
   let projectsCache = [];
   let selectedProject = null;
@@ -273,8 +187,11 @@
       const response = await fetch("/api/projects", { credentials: "same-origin" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Could not load projects.");
-
       projectsCache = data.projects || [];
+      if (!projectsCache.length) {
+        showFormMessage("No projects available.");
+        return;
+      }
       projectsCache.forEach((project) => {
         const option = document.createElement("option");
         option.value = project.project_id;
@@ -288,11 +205,8 @@
   }
 
   projectSelect.addEventListener("change", () => {
-    selectedProject = projectsCache.find(
-      (project) => String(project.project_id) === projectSelect.value
-    );
+    selectedProject = projectsCache.find((project) => String(project.project_id) === projectSelect.value);
     selectedSkills = selectedProject ? selectedProject.skills || [] : [];
-
     skillTags.innerHTML = "";
     if (selectedSkills.length) {
       selectedSkills.forEach((skill) => {
@@ -304,7 +218,6 @@
     } else {
       skillTags.innerHTML = '<span class="skill-empty">No skills listed for this project.</span>';
     }
-
     skillsGroup.hidden = false;
     clearResults();
     formMessage.hidden = true;
@@ -316,12 +229,10 @@
       showFormMessage("Please select a project.");
       return;
     }
-
     submitButton.disabled = true;
     submitButton.textContent = "Finding matches...";
     formMessage.hidden = true;
     clearResults();
-
     try {
       const response = await fetch("/api/project-matches", {
         method: "POST",
@@ -331,12 +242,10 @@
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Unable to generate employee matches.");
-
       matchingEmployees = data.employees || [];
-      showFormMessage(
-        `Found ${data.total_employees} active employees for ${data.project.project_name}.`
-      );
+      showFormMessage(`Found ${data.total_employees} active employees for ${data.project.project_name}.`);
       resultsSubtitle.textContent = `${data.project.project_name} - ranked by skill match`;
+      renderSkillGapReport(data.skill_gap_report, data.project.project_name);
       renderEmployeeMatches(matchingEmployees);
     } catch (error) {
       console.error("Matching request failed:", error);
@@ -347,11 +256,41 @@
     }
   });
 
+  function renderSkillGapReport(report, projectName) {
+    skillGapReportContent.innerHTML = "";
+    if (!report || !report.trim()) {
+      skillGapReportCard.hidden = true;
+      return;
+    }
+    reportProjectName.textContent = `${projectName} - Consolidated Skill-Gap Analysis`;
+
+    const lines = report.split(/\n+/).map((t) => t.trim()).filter(Boolean);
+    const bulletPattern = /^(\s*[-•*]\s+|\s*\d+[.)]\s+)/;
+    let currentList = null;
+
+    lines.forEach((line) => {
+      if (bulletPattern.test(line)) {
+        if (!currentList) {
+          currentList = document.createElement("ul");
+          skillGapReportContent.appendChild(currentList);
+        }
+        const li = document.createElement("li");
+        li.textContent = line.replace(bulletPattern, "");
+        currentList.appendChild(li);
+      } else {
+        currentList = null;
+        const paragraph = document.createElement("p");
+        paragraph.textContent = line;
+        skillGapReportContent.appendChild(paragraph);
+      }
+    });
+    skillGapReportCard.hidden = false;
+  }
+
   function renderEmployeeMatches(employees) {
     employeeMatches.innerHTML = "";
     selectedEmployeeIds.clear();
     updateSelectionUI();
-
     if (!employees.length) {
       employeeMatches.innerHTML = '<p class="skill-empty">No active employees were found.</p>';
       matchResults.hidden = false;
@@ -359,58 +298,41 @@
       return;
     }
 
-    employees.forEach((employee) => {
+    // Ensure correct ranking order regardless of backend order.
+    const ordered = [...employees].sort((a, b) => Number(a.rank) - Number(b.rank));
+
+    ordered.forEach((employee) => {
       const row = document.createElement("article");
       row.className = "employee-match";
       row.dataset.employeeId = employee.employee_id;
-
       const main = document.createElement("div");
       main.className = "employee-main";
-
       const titleRow = document.createElement("div");
       titleRow.className = "employee-title-row";
-
       const title = document.createElement("h3");
       title.textContent = employee.employee_name;
-
       const rank = document.createElement("span");
       rank.className = "rank-badge";
       rank.textContent = `Rank ${employee.rank}`;
-
       const match = document.createElement("span");
       match.className = "match-badge";
       match.textContent = `${employee.matching_percentage}% match`;
-
       titleRow.append(title, rank, match);
-
       const employeeId = makeText("employee-meta", `Employee ID: ${employee.employee_id}`);
-      const count = makeText(
-        "employee-meta",
-        `Matched skills: ${employee.matched_count}/${employee.required_count}`
-      );
-      const matched = makeText(
-        "employee-meta",
-        `Skills matched: ${formatSkills(employee.matched_skills)}`
-      );
-      const missing = makeText(
-        "employee-meta",
-        `Skill gaps: ${formatSkills(employee.missing_skills)}`
-      );
+      const count = makeText("employee-meta", `Matched skills: ${employee.matched_count}/${employee.required_count}`);
+      const matched = makeText("employee-meta", `Skills matched: ${formatSkills(employee.matched_skills)}`);
+      const missing = makeText("employee-meta", `Skill gaps: ${formatSkills(employee.missing_skills)}`);
       const description = makeText("employee-description", employee.description || "");
-
       main.append(titleRow, employeeId, count, matched, missing, description);
-
       const selectButton = document.createElement("button");
       selectButton.type = "button";
       selectButton.className = "select-employee-button";
       selectButton.textContent = "Select";
       selectButton.setAttribute("aria-pressed", "false");
       selectButton.addEventListener("click", () => toggleEmployee(employee, row, selectButton));
-
       row.append(main, selectButton);
       employeeMatches.appendChild(row);
     });
-
     matchResults.hidden = false;
     saveArea.hidden = false;
     saveMessage.hidden = true;
@@ -418,7 +340,6 @@
 
   function toggleEmployee(employee, row, button) {
     const employeeId = employee.employee_id;
-
     if (selectedEmployeeIds.has(employeeId)) {
       selectedEmployeeIds.delete(employeeId);
       row.classList.remove("is-selected");
@@ -432,16 +353,12 @@
       button.textContent = "Selected";
       button.setAttribute("aria-pressed", "true");
     }
-
     saveMessage.hidden = true;
     updateSelectionUI();
   }
 
   saveSelectionsButton.addEventListener("click", async () => {
-    const selectedEmployees = matchingEmployees.filter((employee) =>
-      selectedEmployeeIds.has(employee.employee_id)
-    );
-
+    const selectedEmployees = matchingEmployees.filter((employee) => selectedEmployeeIds.has(employee.employee_id));
     if (!selectedEmployees.length) {
       saveMessage.textContent = "Select at least one employee before saving.";
       saveMessage.hidden = false;
@@ -454,7 +371,7 @@
         employee_id: employee.employee_id,
         rank: employee.rank,
         matching_percentage: employee.matching_percentage,
-        description: employee.description,        // 👈 add this line
+        description: employee.description,
       })),
     };
 
@@ -469,7 +386,6 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectionData),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Unable to save selected employees.");
 
@@ -477,10 +393,11 @@
       if (data.skipped_count > 0) {
         message += ` ${data.skipped_count} skipped (already allocated).`;
       }
-
-      saveMessage.textContent = message;
-      saveMessage.hidden = false;
       console.log("Saved allocation response:", data);
+
+      completionMessage.textContent = message;
+      completionPopup.hidden = false;
+      completionOkButton.focus();
     } catch (error) {
       console.error("Save allocation failed:", error);
       saveMessage.textContent = error.message;
@@ -491,6 +408,23 @@
     }
   });
 
+  completionOkButton.addEventListener("click", () => {
+    completionPopup.hidden = true;
+    resetRequirementPage();
+  });
+
+  function resetRequirementPage() {
+    requirementForm.reset();
+    selectedProject = null;
+    selectedSkills = [];
+    skillTags.innerHTML = "";
+    skillsGroup.hidden = true;
+    formMessage.textContent = "";
+    formMessage.hidden = true;
+    clearResults();
+    projectSelect.focus();
+  }
+
   function updateSelectionUI() {
     const count = selectedEmployeeIds.size;
     selectedCount.textContent = `${count} selected`;
@@ -500,9 +434,14 @@
   function clearResults() {
     matchingEmployees = [];
     selectedEmployeeIds.clear();
+    skillGapReportContent.innerHTML = "";
+    reportProjectName.textContent = "";
+    skillGapReportCard.hidden = true;
     employeeMatches.innerHTML = "";
+    resultsSubtitle.textContent = "";
     matchResults.hidden = true;
     saveArea.hidden = true;
+    saveMessage.textContent = "";
     saveMessage.hidden = true;
     updateSelectionUI();
   }

@@ -4,7 +4,10 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from skill_analyze.llm_extractor import generate_employee_description
+from skill_analyze.llm_extractor import (
+    generate_employee_description,
+    generate_project_skill_gap_report,
+)
 from skill_analyze.skill_match import get_matches
 
 
@@ -14,6 +17,7 @@ class MatchingState(TypedDict, total=False):
     project_id: int
     raw_result: dict[str, Any]
     employees: list[dict[str, Any]]
+    skill_gap_report: str
     response: dict[str, Any]
     error: str
 
@@ -50,8 +54,10 @@ def fetch_matches_node(state: MatchingState) -> dict[str, Any]:
         return {"error": "Unable to generate employee matches."}
 
 
-def generate_descriptions_node(state: MatchingState) -> dict[str, Any]:
-    """Add an LLM-generated description to every employee result."""
+def generate_descriptions_node(
+    state: MatchingState,
+) -> dict[str, Any]:
+    """Generate employee descriptions and one project skill-gap report."""
 
     raw_result = state["raw_result"]
     project = raw_result["project"]
@@ -78,10 +84,20 @@ def generate_descriptions_node(state: MatchingState) -> dict[str, Any]:
             }
         )
 
-    return {"employees": employees}
+    skill_gap_report = generate_project_skill_gap_report(
+        project=project,
+        employees=employees,
+    )
+
+    return {
+        "employees": employees,
+        "skill_gap_report": skill_gap_report,
+    }
 
 
-def prepare_response_node(state: MatchingState) -> dict[str, Any]:
+def prepare_response_node(
+    state: MatchingState,
+) -> dict[str, Any]:
     """Prepare the final response for app.py."""
 
     if state.get("error"):
@@ -91,6 +107,7 @@ def prepare_response_node(state: MatchingState) -> dict[str, Any]:
                 "project_id": state.get("project_id"),
                 "message": state["error"],
                 "employees": [],
+                "skill_gap_report": "",
             }
         }
 
@@ -99,18 +116,22 @@ def prepare_response_node(state: MatchingState) -> dict[str, Any]:
     return {
         "response": {
             "success": True,
-            "message": "Employee ranking generated successfully.",
+            "message": "Employee ranking and skill-gap report generated successfully.",
             "project": {
                 "project_id": project["project_id"],
                 "project_name": project["project_name"],
             },
             "total_employees": len(state["employees"]),
             "employees": state["employees"],
+            "skill_gap_report": state["skill_gap_report"],
         }
     }
 
 
-def route_next(state: MatchingState, success_node: str) -> str:
+def route_next(
+    state: MatchingState,
+    success_node: str,
+) -> str:
     """Route to the response node if an error exists."""
 
     if state.get("error"):
@@ -134,7 +155,10 @@ def create_matching_agent():
 
     graph.add_node("validate_project", validate_project_node)
     graph.add_node("fetch_matches", fetch_matches_node)
-    graph.add_node("generate_descriptions", generate_descriptions_node)
+    graph.add_node(
+        "generate_descriptions",
+        generate_descriptions_node,
+    )
     graph.add_node("prepare_response", prepare_response_node)
 
     graph.add_edge(START, "validate_project")
@@ -157,7 +181,10 @@ def create_matching_agent():
         },
     )
 
-    graph.add_edge("generate_descriptions", "prepare_response")
+    graph.add_edge(
+        "generate_descriptions",
+        "prepare_response",
+    )
     graph.add_edge("prepare_response", END)
 
     return graph.compile()
@@ -169,7 +196,12 @@ matching_agent = create_matching_agent()
 def run_matching_agent(project_id: int) -> dict[str, Any]:
     """Run the matching agent for the selected project."""
 
-    final_state = matching_agent.invoke({"project_id": project_id})
+    final_state = matching_agent.invoke(
+        {
+            "project_id": project_id,
+        }
+    )
+
     return final_state["response"]
 
 
