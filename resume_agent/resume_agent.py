@@ -44,6 +44,7 @@ def route_after_check(state):
 
 
 # 4. insert / get employee — all fields now come from extracted
+# 4. insert / get employee — all fields now come from extracted
 def node_employee(state):
     ex = state["extracted"]
     state["employee_id"] = upsert_employee(
@@ -52,6 +53,9 @@ def node_employee(state):
         ex.get("department"),
         ex.get("designation"),
         employee_id=ex.get("employee_id"),
+        manager_id=ex.get("manager_id"),
+        location=ex.get("location"),
+        joining_date=ex.get("joining_date"),
     )
     return state
 

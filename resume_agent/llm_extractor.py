@@ -14,6 +14,11 @@ Rules:
 - "full_name": the candidate's full name (usually the top heading).
 - "department": the department/team if stated, else infer from role, else null.
 - "designation": the job title / role (e.g. "Software Engineer"). If none, null.
+- "manager_id": the manager's identifier EXACTLY as written (STRING, e.g. "M001").
+  Look for labels like "ManagerId", "Manager ID", "Reports To", "Reporting Manager". If none, use null.
+- "location": the work location / city / office (e.g. "Bengaluru"). If none, null.
+- "joining_date": the date of joining in YYYY-MM-DD format if possible.
+  Look for labels like "Joining Date", "Date of Joining", "DOJ", "Joined On". If none, use null.
 - Return ONLY valid JSON, no extra text.
 
 {{
@@ -21,6 +26,9 @@ Rules:
   "full_name": "string or null",
   "department": "string or null",
   "designation": "string or null",
+  "manager_id": "string or null",
+  "location": "string or null",
+  "joining_date": "string or null",
   "email": "string or null",
   "skills": [
     {{"skill_name": "Python", "category": "Programming",

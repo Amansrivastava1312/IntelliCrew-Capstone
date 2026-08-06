@@ -20,7 +20,8 @@ def get_conn():
 
 
 def upsert_employee(full_name, email, department, designation,
-                    employee_id=None, manager_id=DEFAULT_MANAGER_ID):
+                    employee_id=None, manager_id=DEFAULT_MANAGER_ID,
+                    location=None, joining_date=None):
     """Return employee_id (string / nvarchar).
 
     Priority for finding an existing row:
@@ -34,6 +35,9 @@ def upsert_employee(full_name, email, department, designation,
 
     # normalize: treat empty string as missing
     employee_id = employee_id.strip() if isinstance(employee_id, str) and employee_id.strip() else None
+    manager_id = manager_id.strip() if isinstance(manager_id, str) and manager_id.strip() else manager_id
+    location = location.strip() if isinstance(location, str) and location.strip() else None
+    joining_date = joining_date.strip() if isinstance(joining_date, str) and joining_date.strip() else None
 
     row = None
 
@@ -52,13 +56,14 @@ def upsert_employee(full_name, email, department, designation,
     if row:
         emp_id = row["employee_id"]          # already exists
     elif employee_id:
-        # insert WITH the provided id (nvarchar)
+        # insert WITH the provided id — column order matches the schema
         cur.execute(
             """INSERT INTO employees
-               (employee_id, full_name, email, department, designation, manager_id,
-                status, created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, 'active', datetime('now'), datetime('now'))""",
-            (employee_id, full_name, email, department, designation, manager_id),
+               (employee_id, full_name, email, department, designation, location,
+                manager_id, joining_date, status, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', datetime('now'), datetime('now'))""",
+            (employee_id, full_name, email, department, designation, location,
+             manager_id, joining_date),
         )
         emp_id = employee_id
         conn.commit()
@@ -66,10 +71,11 @@ def upsert_employee(full_name, email, department, designation,
         # no id given → let SQLite auto-generate
         cur.execute(
             """INSERT INTO employees
-               (full_name, email, department, designation, manager_id,
-                status, created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, 'active', datetime('now'), datetime('now'))""",
-            (full_name, email, department, designation, manager_id),
+               (full_name, email, department, designation, location,
+                manager_id, joining_date, status, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 'active', datetime('now'), datetime('now'))""",
+            (full_name, email, department, designation, location,
+             manager_id, joining_date),
         )
         emp_id = cur.lastrowid
         conn.commit()
