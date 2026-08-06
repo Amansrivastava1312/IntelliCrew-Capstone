@@ -437,7 +437,7 @@
     updateSelectionUI();
   }
 
-  saveSelectionsButton.addEventListener("click", () => {
+  saveSelectionsButton.addEventListener("click", async () => {
     const selectedEmployees = matchingEmployees.filter((employee) =>
       selectedEmployeeIds.has(employee.employee_id)
     );
@@ -448,21 +448,47 @@
       return;
     }
 
-    // This data is ready for the allocation/save API in the next update.
     const selectionData = {
       project_id: Number(selectedProject.project_id),
       employees: selectedEmployees.map((employee) => ({
         employee_id: employee.employee_id,
         rank: employee.rank,
         matching_percentage: employee.matching_percentage,
+        description: employee.description,        // 👈 add this line
       })),
     };
 
-    console.log("Selected employee records:", selectionData);
-    window.selectedRequirementEmployees = selectionData;
+    saveSelectionsButton.disabled = true;
+    saveSelectionsButton.textContent = "Saving...";
+    saveMessage.hidden = true;
 
-    saveMessage.textContent = `${selectedEmployees.length} employee(s) selected and ready to save.`;
-    saveMessage.hidden = false;
+    try {
+      const response = await fetch("/api/project-allocations", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selectionData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Unable to save selected employees.");
+
+      let message = `${data.saved_count} employee(s) saved successfully.`;
+      if (data.skipped_count > 0) {
+        message += ` ${data.skipped_count} skipped (already allocated).`;
+      }
+
+      saveMessage.textContent = message;
+      saveMessage.hidden = false;
+      console.log("Saved allocation response:", data);
+    } catch (error) {
+      console.error("Save allocation failed:", error);
+      saveMessage.textContent = error.message;
+      saveMessage.hidden = false;
+    } finally {
+      saveSelectionsButton.disabled = selectedEmployeeIds.size === 0;
+      saveSelectionsButton.textContent = "Save Selected Employees";
+    }
   });
 
   function updateSelectionUI() {
