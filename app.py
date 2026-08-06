@@ -380,3 +380,56 @@ async def summarize_video(
         "summary": result.get("summary"),
         "status": result.get("status"),
     }
+    
+    
+from pydantic import BaseModel
+
+
+class SelectedEmployee(BaseModel):
+    employee_id: str
+    rank: int | None = None
+    matching_percentage: float | int | None = None
+    description: str | None = None          # 👈 add this line
+
+
+class SaveProjectAllocationRequest(BaseModel):
+    project_id: int
+    employees: list[SelectedEmployee]
+
+    
+from skill_analyze.allocation_helper import save_project_allocations  
+# ---------- save selected employees to project_allocation (MANAGER only) ----------
+@app.post("/api/project-allocations")
+def api_project_allocations(
+    payload: SaveProjectAllocationRequest,
+    sid: str | None = Cookie(None, alias=COOKIE),
+):
+    """Save ONLY the manager-selected employees into project_allocation."""
+
+    session = require_session(sid)
+
+    if session["role"] != "MANAGER":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only managers can save project allocations.",
+        )
+
+    try:
+        result = save_project_allocations(
+            project_id=payload.project_id,
+            selected_employees=[emp.dict() for emp in payload.employees],
+            manager_name=session["name"],   # ✅ your session stores the name here
+        )
+        return result
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error),
+        )
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unable to save project allocations: {str(error)}",
+        )

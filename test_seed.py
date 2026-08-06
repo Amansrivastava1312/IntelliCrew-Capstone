@@ -37,22 +37,42 @@ for emp_id, name, dept, desig in EMPLOYEES:
          today.isoformat()),
     )
 
+# --- create table (columns you asked for) ---
+cur.execute(
+    """CREATE TABLE IF NOT EXISTS project_allocation (
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,   -- primary key
+        employee_id      TEXT    NOT NULL,
+        employee_email   TEXT    NOT NULL,
+        project_id       INTEGER,
+        project_name     TEXT,
+        selection_reason TEXT,
+        is_sent          INTEGER NOT NULL DEFAULT 0,          -- 0 = not sent, 1 = sent
+        manager_name     TEXT,
+        created_at       TEXT    NOT NULL DEFAULT (datetime('now'))
+    )"""
+)
+
+# employee_id, employee_email, project_id, project_name, selection_reason, manager_name
+SELECTIONS = [
+    ("E106", "amanrajasthan123@gmail.com", 1, "IntelliCrew HR Automation",
+     "Strong Python & FastAPI background", "Nikita Dash"),
+    ("E107", "aman@yopmail.com", 1, "IntelliCrew HR Automation",
+     "Good data analysis & reporting skills", "Nikita Dash"),
+    ("E108", "e108@intelli.local", 2, "Cloud Migration",
+     "Hands-on AWS / Azure experience", "Nikita Dash"),
+]
+
 # --- insert project allocations ---
-for emp_id, project_id, role, percent in ALLOCATIONS:
-    exists = cur.execute(
-        "SELECT 1 FROM project_allocations WHERE employee_id = ? AND project_id = ?",
-        (emp_id, project_id),
-    ).fetchone()
-    if not exists:
-        cur.execute(
-            """INSERT INTO project_allocations
-               (employee_id, project_id, role_on_project, allocation_percent,
-                start_date, end_date, status)
-               VALUES (?, ?, ?, ?, ?, ?, 'Active')""",
-            (emp_id, project_id, role, percent,
-             today.isoformat(), (today + timedelta(days=120)).isoformat()),
-        )
+for emp_id, email, pid, pname, reason, mgr in SELECTIONS:
+    cur.execute(
+        """INSERT INTO project_allocation
+           (employee_id, employee_email, project_id, project_name,
+            selection_reason, manager_name)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (emp_id, email, pid, pname, reason, mgr),
+    )
 
 conn.commit()
 conn.close()
-print(f"Inserted {len(EMPLOYEES)} employees and {len(ALLOCATIONS)} allocations under M001.")
+print(f"Created project_allocation table and inserted {len(SELECTIONS)} dummy selections (is_sent = 0).")
+ 
