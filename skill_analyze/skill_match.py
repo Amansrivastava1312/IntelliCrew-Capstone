@@ -71,6 +71,7 @@ def get_matches(project_id: int) -> dict[str, Any]:
             SELECT
                 e.employee_id,
                 e.full_name,
+                e.email,
                 s.skill_name
             FROM employees AS e
             LEFT JOIN employee_skills AS es
@@ -92,6 +93,7 @@ def get_matches(project_id: int) -> dict[str, Any]:
                 employees[employee_id] = {
                     "employee_id": employee_id,
                     "full_name": row["full_name"],
+                    "email": row["email"],
                     "skills": set(),
                 }
 
@@ -121,6 +123,7 @@ def get_matches(project_id: int) -> dict[str, Any]:
                 {
                     "employee_id": employee["employee_id"],
                     "full_name": employee["full_name"],
+                    "email": employee["email"],
                     "matched_count": matched_count,
                     "required_count": total_required,
                     "match_percentage": match_percentage,

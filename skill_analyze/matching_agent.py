@@ -4,8 +4,8 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from skillgap_agent.llm_extractor import generate_employee_description
-from skillgap_agent.skill_match import get_matches
+from skill_analyze.llm_extractor import generate_employee_description
+from skill_analyze.skill_match import get_matches
 
 
 class MatchingState(TypedDict, total=False):
@@ -67,6 +67,7 @@ def generate_descriptions_node(state: MatchingState) -> dict[str, Any]:
             {
                 "employee_id": employee["employee_id"],
                 "employee_name": employee["full_name"],
+                "email": employee["email"],
                 "rank": employee["rank"],
                 "matching_percentage": employee["match_percentage"],
                 "matched_count": employee["matched_count"],
