@@ -1,5 +1,8 @@
 <!-- create_requirement.html - included inside home.html -->
 
+<!-- PDF library for downloading the report -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <div class="page-head">
   <h1>Create Requirement</h1>
   <p class="subtitle">Select a project to view its required skills and find matching employees.</p>
@@ -30,7 +33,10 @@
           <span class="report-label">Project Analysis</span>
           <h2>Report</h2>
         </div>
-        <span class="report-badge">AI Generated</span>
+        <div class="report-head-actions">
+          <span class="report-badge">AI Generated</span>
+          <button id="downloadReportButton" class="report-download-btn" type="button">Download PDF</button>
+        </div>
       </div>
       <p id="reportProjectName" class="report-project-name"></p>
       <div id="skillGapReportContent" class="report-content"></div>
@@ -126,6 +132,13 @@
   .skill-gap-report-card { margin: 0; padding: 22px; border: 1px solid #ddd8f7; background: linear-gradient(145deg,#f8f7ff,#fff); }
   .report-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 1px solid #e8e5f7; }
   .report-head h2 { margin: 3px 0 0; color: var(--primary-dark); font-size: 21px; }
+  .report-head-actions { display: flex; align-items: center; gap: 10px; }
+  .report-download-btn {
+    padding: 6px 12px; border: 1px solid #6f68d8; border-radius: 8px;
+    background: #fff; color: #5a53cb; font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .report-download-btn:hover { background: #6f68d8; color: #fff; }
   .report-label { color: #757b8d; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
   .report-badge { padding: 5px 10px; border-radius: 999px; background: #ece9ff; color: #5148c8; font-size: 11px; font-weight: 700; }
   .report-project-name { margin: 16px 0 10px; color: #373c4b; font-size: 14px; font-weight: 700; }
@@ -172,6 +185,7 @@
   const skillGapReportCard = document.getElementById("skillGapReportCard");
   const reportProjectName = document.getElementById("reportProjectName");
   const skillGapReportContent = document.getElementById("skillGapReportContent");
+  const downloadReportButton = document.getElementById("downloadReportButton");
   const completionPopup = document.getElementById("completionPopup");
   const completionMessage = document.getElementById("completionMessage");
   const completionOkButton = document.getElementById("completionOkButton");
@@ -286,6 +300,41 @@
     });
     skillGapReportCard.hidden = false;
   }
+
+  // ---------- download the report as a PDF (client-side) ----------
+    // ---------- download the report as a PDF (client-side) ----------
+  downloadReportButton.addEventListener("click", async () => {
+    const reportElement = skillGapReportCard;
+
+    const fileName = (reportProjectName.textContent || "skill-gap-report")
+      .replace(/[^a-z0-9]+/gi, "_")
+      .toLowerCase();
+
+    const options = {
+      margin: [10, 10, 10, 10],
+      filename: `${fileName}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: -window.scrollY,   // ONLY this offset — don't set windowHeight
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] },
+    };
+
+    // Hide the button so it isn't captured
+    downloadReportButton.style.visibility = "hidden";
+
+    try {
+      await html2pdf().set(options).from(reportElement).save();
+    } catch (error) {
+      console.error("PDF download failed:", error);
+    } finally {
+      downloadReportButton.style.visibility = "visible";
+    }
+  });
 
   function renderEmployeeMatches(employees) {
     employeeMatches.innerHTML = "";

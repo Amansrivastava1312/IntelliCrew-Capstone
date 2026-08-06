@@ -64,14 +64,13 @@ def _stats(c: sqlite3.Cursor, manager_id: str) -> dict:
         (manager_id,),
     ).fetchone()[0]
 
-    # bench = this manager's employees with no ACTIVE allocation
+    # bench = this manager's employees who are NOT in project_allocation at all
     on_bench = c.execute(
         """
         SELECT COUNT(*) FROM employees e
         WHERE e.manager_id = ?
           AND e.employee_id NOT IN (
-              SELECT employee_id FROM project_allocations
-              WHERE LOWER(status) = 'active'
+              SELECT employee_id FROM project_allocation
           )
         """,
         (manager_id,),
@@ -113,8 +112,7 @@ def _bench_employees(c: sqlite3.Cursor, manager_id: str, limit: int = 6) -> list
         FROM employees e
         WHERE e.manager_id = ?
           AND e.employee_id NOT IN (
-              SELECT employee_id FROM project_allocations
-              WHERE LOWER(status) = 'active'
+              SELECT employee_id FROM project_allocation
           )
         ORDER BY e.full_name
         LIMIT ?
@@ -179,8 +177,8 @@ def _active_projects(c: sqlite3.Cursor, limit: int = 6) -> list:
     rows = c.execute(
         """
         SELECT p.project_name, p.client, p.required_skills, p.end_date, p.status,
-               (SELECT COUNT(*) FROM project_allocations pa
-                WHERE pa.project_id = p.project_id AND LOWER(pa.status) = 'active'
+               (SELECT COUNT(*) FROM project_allocation pa
+                WHERE pa.project_id = p.project_id
                ) AS allocated_count
         FROM projects p
         WHERE LOWER(p.status) = 'in progress'

@@ -291,12 +291,6 @@ def api_project_matches(
 
     session = require_session(sid)
 
-    if session["role"] != "MANAGER":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only managers can generate employee matches.",
-        )
-
     state = {
         "project_id": payload.project_id,
     }
