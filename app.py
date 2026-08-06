@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 from security import verify_password
 from fetch_sqlite_data.dashboard_data import get_manager_dashboard
 from resume_agent.embed_agent import run_embedding_agent
+from mailAgent.send_agent import run_mail_agent
 
 # --- orchestrator replaces the direct resume_agent import ---
 from orchestrator.orchestrator import run as orchestrate
@@ -420,6 +421,8 @@ def api_project_allocations(
             selected_employees=[emp.dict() for emp in payload.employees],
             manager_name=session["name"],   # ✅ your session stores the name here
         )
+        # backend step : mail the selected employees
+        mail_summary = run_mail_agent()
         return result
 
     except ValueError as error:

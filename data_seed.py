@@ -135,20 +135,7 @@ CREATE TABLE IF NOT EXISTS projects (
     status VARCHAR(20)
 );
 
-CREATE TABLE IF NOT EXISTS project_allocations (
-    allocation_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    employee_id VARCHAR(20) NOT NULL,
-    project_id INTEGER NOT NULL,
-    role_on_project VARCHAR(80),
-    allocation_percent FLOAT,
-    start_date DATE,
-    end_date DATE,
-    status VARCHAR(20),
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
-        ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (project_id) REFERENCES projects(project_id)
-        ON UPDATE CASCADE ON DELETE CASCADE
-);
+
 
 CREATE TABLE IF NOT EXISTS audit_log (
     log_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -199,14 +186,25 @@ CREATE TABLE IF NOT EXISTS hr (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS project_allocation (
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,   -- primary key
+        employee_id      TEXT    NOT NULL,
+        employee_email   TEXT    NOT NULL,
+        project_id       INTEGER,
+        project_name     TEXT,
+        selection_reason TEXT,
+        is_sent          INTEGER NOT NULL DEFAULT 0,          -- 0 = not sent, 1 = sent
+        manager_name     TEXT,
+        created_at       TEXT    NOT NULL DEFAULT (datetime('now'))
+    );
+
 CREATE INDEX IF NOT EXISTS idx_employees_manager_id ON employees(manager_id);
 CREATE INDEX IF NOT EXISTS idx_employee_skills_employee_id ON employee_skills(employee_id);
 CREATE INDEX IF NOT EXISTS idx_employee_skills_skill_id ON employee_skills(skill_id);
 CREATE INDEX IF NOT EXISTS idx_certifications_employee_id ON certifications(employee_id);
 CREATE INDEX IF NOT EXISTS idx_assessments_employee_id ON assessments(employee_id);
 CREATE INDEX IF NOT EXISTS idx_assessments_skill_id ON assessments(skill_id);
-CREATE INDEX IF NOT EXISTS idx_allocations_employee_id ON project_allocations(employee_id);
-CREATE INDEX IF NOT EXISTS idx_allocations_project_id ON project_allocations(project_id);
+CREATE INDEX IF NOT EXISTS idx_allocations_employee_id ON project_allocation(employee_id);
 """
 
 
