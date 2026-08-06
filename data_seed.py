@@ -135,8 +135,6 @@ CREATE TABLE IF NOT EXISTS projects (
     status VARCHAR(20)
 );
 
-
-
 CREATE TABLE IF NOT EXISTS audit_log (
     log_id INTEGER PRIMARY KEY AUTOINCREMENT,
     table_name VARCHAR(50),
@@ -156,7 +154,6 @@ CREATE TABLE IF NOT EXISTS resume_logs (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE IF NOT EXISTS agent_logs (
     log_id INTEGER PRIMARY KEY AUTOINCREMENT,
     agent_name VARCHAR(60) NOT NULL,       -- which agent ran
@@ -167,6 +164,14 @@ CREATE TABLE IF NOT EXISTS agent_logs (
     source TEXT,                           -- file path / link / query
     status VARCHAR(30),                    -- done / need_employee_id / error
     handled_by VARCHAR(60),                -- agent that returned the result
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS video_summarize_logs (
+    log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    file_path TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    generated_by VARCHAR(20) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -187,16 +192,16 @@ CREATE TABLE IF NOT EXISTS hr (
 );
 
 CREATE TABLE IF NOT EXISTS project_allocation (
-        id               INTEGER PRIMARY KEY AUTOINCREMENT,   -- primary key
-        employee_id      TEXT    NOT NULL,
-        employee_email   TEXT    NOT NULL,
-        project_id       INTEGER,
-        project_name     TEXT,
-        selection_reason TEXT,
-        is_sent          INTEGER NOT NULL DEFAULT 0,          -- 0 = not sent, 1 = sent
-        manager_name     TEXT,
-        created_at       TEXT    NOT NULL DEFAULT (datetime('now'))
-    );
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    employee_id TEXT NOT NULL,
+    employee_email TEXT NOT NULL,
+    project_id INTEGER,
+    project_name TEXT,
+    selection_reason TEXT,
+    is_sent INTEGER NOT NULL DEFAULT 0,
+    manager_name TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 
 CREATE INDEX IF NOT EXISTS idx_employees_manager_id ON employees(manager_id);
 CREATE INDEX IF NOT EXISTS idx_employee_skills_employee_id ON employee_skills(employee_id);
@@ -205,6 +210,7 @@ CREATE INDEX IF NOT EXISTS idx_certifications_employee_id ON certifications(empl
 CREATE INDEX IF NOT EXISTS idx_assessments_employee_id ON assessments(employee_id);
 CREATE INDEX IF NOT EXISTS idx_assessments_skill_id ON assessments(skill_id);
 CREATE INDEX IF NOT EXISTS idx_allocations_employee_id ON project_allocation(employee_id);
+CREATE INDEX IF NOT EXISTS idx_video_summarize_generated_by ON video_summarize_logs(generated_by);
 """
 
 
@@ -226,7 +232,11 @@ def validate_employee_schema(connection: sqlite3.Connection) -> None:
         return
 
     employee_id = next((row for row in columns if row[1] == "employee_id"), None)
-    if employee_id and "CHAR" not in employee_id[2].upper() and "TEXT" not in employee_id[2].upper():
+    if (
+        employee_id
+        and "CHAR" not in employee_id[2].upper()
+        and "TEXT" not in employee_id[2].upper()
+    ):
         raise RuntimeError(
             "The existing database uses the old INTEGER employee_id schema. "
             "Delete data/employee_records.db once, then run data_seed.py again."
@@ -290,6 +300,7 @@ def create_database(db_path: Path = DB_PATH) -> None:
     print("Manager accounts: M001 to M010")
     print("HR accounts: H001 to H010")
     print("Projects seeded: 10")
+    print("Video summarize logs table created if it did not exist.")
 
 
 if __name__ == "__main__":

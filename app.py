@@ -340,7 +340,7 @@ async def summarize_video(
     link: str = Form(None),            # optional: a YouTube / video URL
     sid: str | None = Cookie(None, alias=COOKIE),
 ):
-    require_session(sid)   # any logged-in user can summarize
+    s = require_session(sid)   # any logged-in user can summarize
 
     # --- CASE A: a video file was uploaded -> save it in videos/ ---
     if file is not None and file.filename:
@@ -365,6 +365,7 @@ async def summarize_video(
         "transcript": "",
         "summary": "",
         "status": "started",
+        "session_id": s
     }
 
     # keyword makes the orchestrator pick summarizer_agent (not resume_agent)

@@ -1,8 +1,10 @@
-from typing import TypedDict, Optional
+from typing import TypedDict
 from langgraph.graph import StateGraph, END
 
 from transformers import pipeline
 import re
+
+from video_summarization.db import save_video_summary_log
 
 
 # load the summarizer ONCE (light model, CPU friendly)
@@ -16,6 +18,7 @@ class SummaryState(TypedDict):
     transcript: str             # extracted text
     summary: str                # final summary
     status: str                 # done / no_transcript
+    session_id: str             # Manager or HR ID supplied by app.py
 
 
 # small helpers (reused inside nodes)
@@ -112,12 +115,23 @@ def node_summarize(state):
     return state
 
 
+# 5. call the database execution helper after summarization
+def node_save_to_db(state):
+    save_video_summary_log(
+        file_path=state["source"],
+        summary=state["summary"],
+        session_id=state["session_id"],
+    )
+    return state
+
+
 def build_graph():
     g = StateGraph(SummaryState)
     g.add_node("detect", node_detect)
     g.add_node("youtube", node_youtube)
     g.add_node("whisper", node_whisper)
     g.add_node("summarize", node_summarize)
+    g.add_node("save_to_db", node_save_to_db)
 
     g.set_entry_point("detect")
     g.add_conditional_edges("detect", route_after_detect,
@@ -125,7 +139,8 @@ def build_graph():
     g.add_conditional_edges("youtube", route_after_youtube,
                             {"summarize": "summarize", "whisper": "whisper"})
     g.add_edge("whisper", "summarize")
-    g.add_edge("summarize", END)
+    g.add_edge("summarize", "save_to_db")
+    g.add_edge("save_to_db", END)
     return g.compile()
 
 
