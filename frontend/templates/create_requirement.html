@@ -11,43 +11,103 @@
   <span id="centralReportBtnText">Download Report</span>
 </button>
 
-<!-- ===== Decorative background (LIGHT theme) — separate big dark graph + document ===== -->
+<!-- ===== Decorative background (LIGHT theme) — evenly scattered subtle icons ===== -->
 <div class="req-bg" aria-hidden="true">
   <div class="req-bg-gradient"></div>
 
-  <!-- BIG market-trend graph — right middle, nudged up -->
-  <div class="req-bg-graph">
-    <svg viewBox="0 0 320 210" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M40 24 V180 H300" stroke="#2f3550" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-      <rect x="66"  y="138" width="30" height="42"  rx="5" fill="#3a4573"/>
-      <rect x="112" y="106" width="30" height="74"  rx="5" fill="#414f86"/>
-      <rect x="158" y="76"  width="30" height="104" rx="5" fill="#2f6d51"/>
-      <rect x="204" y="44"  width="30" height="136" rx="5" fill="#357a5b"/>
-      <path d="M72 124 L124 92 L170 62 L240 22" stroke="#243b31" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M240 22 L216 26 M240 22 L236 46" stroke="#243b31" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+  <!-- scattered small flat icons, low opacity, spread across the whole page -->
+  <div class="req-bg-icons">
+    <!-- resume / document -->
+    <svg class="rbi rbi-doc"   style="top:9%;  left:6%;">  <use href="#ic-doc"/></svg>
+    <svg class="rbi rbi-mint"  style="top:63%; left:4%;">  <use href="#ic-doc"/></svg>
+    <svg class="rbi rbi-blue"  style="top:88%; left:22%;"> <use href="#ic-doc"/></svg>
+    <svg class="rbi rbi-lav"   style="top:73%; left:88%;"> <use href="#ic-doc"/></svg>
+    <svg class="rbi rbi-peach" style="top:16%; left:78%;"> <use href="#ic-doc"/></svg>
+
+    <!-- gear -->
+    <svg class="rbi rbi-mint"  style="top:23%; left:10%;"> <use href="#ic-gear"/></svg>
+    <svg class="rbi rbi-lav"   style="top:49%; left:83%;"> <use href="#ic-gear"/></svg>
+    <svg class="rbi rbi-blue"  style="top:92%; left:52%;"> <use href="#ic-gear"/></svg>
+    <svg class="rbi rbi-peach" style="top:34%; left:92%;"> <use href="#ic-gear"/></svg>
+
+    <!-- bar chart -->
+    <svg class="rbi rbi-mint"  style="top:8%;  left:36%;"> <use href="#ic-chart"/></svg>
+    <svg class="rbi rbi-lav"   style="top:41%; left:9%;">  <use href="#ic-chart"/></svg>
+    <svg class="rbi rbi-blue"  style="top:59%; left:94%;"> <use href="#ic-chart"/></svg>
+    <svg class="rbi rbi-peach" style="top:90%; left:74%;"> <use href="#ic-chart"/></svg>
+
+    <!-- briefcase -->
+    <svg class="rbi rbi-peach" style="top:29%; left:22%;"> <use href="#ic-bag"/></svg>
+    <svg class="rbi rbi-lav"   style="top:52%; left:6%;">  <use href="#ic-bag"/></svg>
+    <svg class="rbi rbi-blue"  style="top:20%; left:60%;"> <use href="#ic-bag"/></svg>
+
+    <!-- magnifier -->
+    <svg class="rbi rbi-lav"   style="top:38%; left:83%;"> <use href="#ic-search"/></svg>
+    <svg class="rbi rbi-mint"  style="top:78%; left:12%;"> <use href="#ic-search"/></svg>
+    <svg class="rbi rbi-blue"  style="top:95%; left:92%;"> <use href="#ic-search"/></svg>
+
+    <!-- envelope -->
+    <svg class="rbi rbi-blue"  style="top:11%; left:50%;"> <use href="#ic-mail"/></svg>
+    <svg class="rbi rbi-peach" style="top:83%; left:38%;"> <use href="#ic-mail"/></svg>
+    <svg class="rbi rbi-lav"   style="top:67%; left:70%;"> <use href="#ic-mail"/></svg>
+
+    <!-- sparkle -->
+    <svg class="rbi rbi-lav"   style="top:6%;  left:24%;"> <use href="#ic-spark"/></svg>
+    <svg class="rbi rbi-peach" style="top:47%; left:44%;"> <use href="#ic-spark"/></svg>
+    <svg class="rbi rbi-mint"  style="top:31%; left:70%;"> <use href="#ic-spark"/></svg>
+    <svg class="rbi rbi-blue"  style="top:70%; left:30%;"> <use href="#ic-spark"/></svg>
+    <svg class="rbi rbi-lav"   style="top:57%; left:58%;"> <use href="#ic-spark"/></svg>
+    <svg class="rbi rbi-peach" style="top:15%; left:90%;"> <use href="#ic-spark"/></svg>
   </div>
 
-  <!-- BIG Word-style document — right side, nudged down -->
-  <div class="req-bg-doc">
-    <svg viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="18" y="16" width="164" height="216" rx="16" fill="#2c3350" stroke="#1e2439" stroke-width="4"/>
-      <path d="M150 16 L182 48 H150 Z" fill="#1e2439"/>
-      <rect x="40" y="46" width="46" height="46" rx="8" fill="#2b579a"/>
-      <text x="63" y="79" text-anchor="middle" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#ffffff">W</text>
-      <rect x="94" y="60" width="72" height="12" rx="6" fill="#8ea0c8"/>
-      <rect x="40" y="116" width="122" height="10" rx="5" fill="#59648a"/>
-      <rect x="40" y="142" width="122" height="10" rx="5" fill="#59648a"/>
-      <rect x="40" y="168" width="100" height="10" rx="5" fill="#48527a"/>
-      <rect x="40" y="194" width="122" height="10" rx="5" fill="#59648a"/>
-      <rect x="40" y="220" width="80"  height="10" rx="5" fill="#48527a"/>
-    </svg>
-  </div>
+  <!-- reusable icon defs (drawn once, referenced above) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <g id="ic-doc">
+        <path d="M6 2h8l4 4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M14 2v4h4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M8 12h8M8 16h8M8 8h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+      <g id="ic-gear">
+        <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+      <g id="ic-chart">
+        <path d="M4 20V4M4 20h16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <rect x="7"  y="12" width="3" height="5" rx="1" fill="currentColor"/>
+        <rect x="12" y="9"  width="3" height="8" rx="1" fill="currentColor"/>
+        <rect x="17" y="6"  width="3" height="11" rx="1" fill="currentColor"/>
+      </g>
+      <g id="ic-bag">
+        <rect x="3" y="7" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+      <g id="ic-search">
+        <circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M16 16l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+      <g id="ic-mail">
+        <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+      <g id="ic-spark">
+        <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z" fill="currentColor"/>
+      </g>
+    </defs>
+  </svg>
 </div>
 
-<div class="page-head">
+<div class="page-head req-page-head">
+  <div class="req-head-mark" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+      <rect x="6" y="4" width="12" height="17" rx="2"/>
+      <path d="M9 4h6v3H9z" stroke-linejoin="round"/>
+      <path d="M9 12h6M9 16h4" stroke-linecap="round"/>
+    </svg>
+  </div>
   <h1>Create Requirement</h1>
   <p class="subtitle">Select a project to view its required skills and find matching employees.</p>
+  <div class="req-head-divider" aria-hidden="true"><span></span><i>✦</i><span></span></div>
 </div>
 
 <div class="requirement-layout">
@@ -88,6 +148,43 @@
       </p>
     </section>
   </section>
+
+    <!-- ===== Empty-state placeholder (shows until a project is submitted) ===== -->
+  <section id="matchPlaceholder" class="card match-placeholder">
+    <div class="placeholder-art" aria-hidden="true">
+      <svg viewBox="0 0 220 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="110" cy="140" rx="82" ry="10" fill="#eceaff"/>
+        <!-- back card -->
+        <rect x="52" y="26" width="120" height="82" rx="12" fill="#f3f1ff" stroke="#ddd8f7" stroke-width="2"/>
+        <rect x="66" y="42" width="46" height="8" rx="4" fill="#cfc9f2"/>
+        <rect x="66" y="58" width="78" height="6" rx="3" fill="#e2ddf7"/>
+        <rect x="66" y="72" width="70" height="6" rx="3" fill="#e2ddf7"/>
+        <rect x="66" y="86" width="52" height="6" rx="3" fill="#e2ddf7"/>
+        <!-- avatars -->
+        <circle cx="70" cy="118" r="13" fill="#c7ecd8" stroke="#9bd8b8" stroke-width="2"/>
+        <circle cx="70" cy="113" r="4.5" fill="#4f9e78"/>
+        <path d="M62 122c1.5-4 14.5-4 16 0" stroke="#4f9e78" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="104" cy="122" r="11" fill="#ffe0cf" stroke="#f0b394" stroke-width="2"/>
+        <circle cx="104" cy="118" r="4" fill="#d07a4b"/>
+        <path d="M97 126c1.3-3.4 12.7-3.4 14 0" stroke="#d07a4b" stroke-width="2" stroke-linecap="round"/>
+        <!-- magnifier -->
+        <circle cx="150" cy="96" r="26" fill="#ffffff" stroke="#8f93e6" stroke-width="4"/>
+        <circle cx="150" cy="96" r="16" fill="#f6f5ff"/>
+        <path d="M169 115l16 16" stroke="#8f93e6" stroke-width="6" stroke-linecap="round"/>
+        <path d="M150 88v16M142 96h16" stroke="#b7b3e8" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h2 class="placeholder-title">No Results Yet</h2>
+    <p class="placeholder-text">
+      Select a project and hit <strong>Submit</strong> to find the best
+      matching employees for your requirement.
+    </p>
+    <p class="placeholder-hint">
+      Employees are ranked by matching percentage, skill alignment and relevant experience.
+    </p>
+  </section>
+
+
 
   <section id="matchResults" class="card match-results" hidden>
     <div class="results-head">
@@ -138,7 +235,7 @@
   .central-report-btn:disabled { opacity: .6; cursor: not-allowed; }
   .central-report-btn svg { width: 16px; height: 16px; }
 
-  /* ===== Decorative background (LIGHT theme) ===== */
+  /* ===== Decorative background (LIGHT theme) — scattered icons ===== */
   .req-bg {
     position: fixed;
     inset: 0;
@@ -155,36 +252,58 @@
       radial-gradient(circle at 78% 82%, rgba(119,112,219,.08), transparent 45%),
       radial-gradient(circle at 20% 88%, rgba(200,180,255,.10), transparent 42%);
   }
-  .req-bg-graph {
+
+  /* scattered icon field */
+  .req-bg-icons { position: absolute; inset: 0; }
+  .rbi {
     position: absolute;
-    top: 34%;
-    right: 12%;
-    transform: translateY(-50%);
-    width: min(38vw, 460px);
-    opacity: .18;
-    animation: artFloat 14s ease-in-out infinite;
+    width: 34px; height: 34px;
+    opacity: .16;
+    animation: rbiFloat 16s ease-in-out infinite;
   }
-  .req-bg-doc {
-    position: absolute;
-    top: 66%;
-    right: 18%;
-    transform: translateY(-50%);
-    width: min(26vw, 320px);
-    opacity: .18;
-    animation: artFloat 17s ease-in-out infinite reverse;
-  }
-  .req-bg-graph svg,
-  .req-bg-doc svg { width: 100%; height: auto; display: block; }
-  @keyframes artFloat {
-    0%, 100% { transform: translateY(-50%); }
-    50%      { transform: translateY(calc(-50% - 16px)); }
+  /* pastel tints matching home.html accent palette */
+  .rbi-lav   { color: #8f93e6; }
+  .rbi-mint  { color: #79c7a3; }
+  .rbi-peach { color: #efab86; }
+  .rbi-blue  { color: #86a7e0; }
+
+  /* gentle size + timing variety so it doesn't look like a grid */
+  .rbi-doc   { width: 38px; height: 38px; }
+  .rbi:nth-child(3n)  { animation-duration: 19s; opacity: .13; }
+  .rbi:nth-child(4n)  { animation-duration: 22s; animation-direction: reverse; }
+  .rbi:nth-child(5n)  { width: 28px; height: 28px; opacity: .12; }
+  .rbi:nth-child(7n)  { animation-delay: -6s; }
+
+  @keyframes rbiFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-14px); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .req-bg-graph, .req-bg-doc { animation: none !important; }
+    .rbi { animation: none !important; }
   }
 
   .page-head,
   .requirement-layout { position: relative; z-index: 1; }
+
+  /* ===== Page head polish ===== */
+  .req-page-head { text-align: center; }
+  .req-head-mark {
+    width: 58px; height: 58px; margin: 0 auto 14px;
+    border-radius: 16px; display: grid; place-items: center;
+    color: #6f68d8; background: rgba(119,112,219,.12);
+    box-shadow: 0 8px 20px rgba(111,115,210,.14);
+  }
+  .req-head-mark svg { width: 28px; height: 28px; }
+  .req-page-head h1 { margin-bottom: 8px; }
+  .req-page-head .subtitle { margin: 0 auto; max-width: 520px; }
+  .req-head-divider {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin: 14px auto 0; width: 180px; color: #b7b3e8;
+  }
+  .req-head-divider span { height: 2px; flex: 1; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #cfccf2); }
+  .req-head-divider span:last-child { background: linear-gradient(90deg, #cfccf2, transparent); }
+  .req-head-divider i { font-style: normal; font-size: 13px; color: #8f8be0; }
 
   /* ===== Layout ===== */
   .requirement-layout {
@@ -196,6 +315,39 @@
   }
   .requirement-left { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
   .match-results { min-width: 0; }
+
+    /* ===== Empty-state placeholder ===== */
+  .match-placeholder {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 32px;
+    min-height: 340px;
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(2px);
+    border: 1px dashed #d9d5f2;
+  }
+  .placeholder-art {
+    width: min(60%, 240px);
+    margin-bottom: 22px;
+    animation: rbiFloat 6s ease-in-out infinite;
+  }
+  .placeholder-art svg { width: 100%; height: auto; display: block; }
+  .placeholder-title { margin: 0 0 8px; color: var(--primary-dark); font-size: 20px; }
+  .placeholder-text { margin: 0 0 14px; max-width: 340px; color: #5f6474; font-size: 14px; line-height: 1.55; }
+  .placeholder-text strong { color: var(--primary-dark); }
+  .placeholder-hint {
+    margin: 0; max-width: 340px; padding: 10px 14px;
+    border-radius: 10px; background: #f3f1ff; color: #6b7085;
+    font-size: 12.5px; line-height: 1.5;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .placeholder-art { animation: none !important; }
+  }
+
   .requirement-form, .match-results { margin: 0; }
 
   .requirement-form, .match-results, .skill-gap-report-card {
@@ -277,15 +429,14 @@
 
   @media (max-width: 1050px) {
     .requirement-layout { grid-template-columns: 1fr; }
-    .req-bg-graph { right: 6%; width: 46vw; opacity: .12; }
-    .req-bg-doc   { right: 8%; width: 34vw; opacity: .12; }
+    .rbi { opacity: .12; }
   }
   @media (max-width: 650px) {
     .employee-match { grid-template-columns: 1fr; }
     .select-employee-button { width: 100%; }
     .save-area { align-items: stretch; flex-direction: column; }
-    .req-bg-graph { top: 22%; right: 4%; width: 60vw; opacity: .10; }
-    .req-bg-doc   { top: 78%; right: 6%; width: 46vw; opacity: .10; }
+    .rbi { opacity: .10; width: 26px; height: 26px; }
+    .rbi-doc { width: 30px; height: 30px; }
     .central-report-btn span { display: none; }
     .central-report-btn { top: 78px; right: 14px; padding: 10px; }
   }
@@ -313,6 +464,7 @@
   const completionPopup = document.getElementById("completionPopup");
   const completionMessage = document.getElementById("completionMessage");
   const completionOkButton = document.getElementById("completionOkButton");
+  const matchPlaceholder = document.getElementById("matchPlaceholder");
 
   // centralized report button
   const centralBtn = document.getElementById("downloadCentralReportBtn");
@@ -489,6 +641,7 @@
   });
 
   function renderEmployeeMatches(employees) {
+    if (matchPlaceholder) matchPlaceholder.hidden = true;
     employeeMatches.innerHTML = "";
     selectedEmployeeIds.clear();
     updateSelectionUI();
@@ -632,6 +785,7 @@
   }
 
   function clearResults() {
+    if (matchPlaceholder) matchPlaceholder.hidden = false;
     matchingEmployees = [];
     selectedEmployeeIds.clear();
     skillGapReportContent.innerHTML = "";
