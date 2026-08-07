@@ -50,7 +50,122 @@ def get_manager_dashboard(manager_id: str) -> dict:
 
     conn.close()
     return data
+# ---------- Project helper function ----------
+def get_hr_projects(cursor) -> list:
+    """
+    Return Planned and In Progress projects.
 
+    Completed projects are not shown on the HR dashboard.
+    """
+
+    rows = cursor.execute(
+        """
+        SELECT *
+        FROM projects
+        WHERE status IN ('In Progress', 'Planned')
+        ORDER BY
+            CASE
+                WHEN status = 'In Progress' THEN 1
+                WHEN status = 'Planned' THEN 2
+                ELSE 3
+            END
+        """
+    ).fetchall()
+
+    projects = []
+
+    for row in rows:
+        projects.append(dict(row))
+
+    return projects
+
+
+# ---------- HR dashboard helper function ----------
+def get_hr_dashboard(hr_id: str) -> dict:
+    """Return everything required by hr_dashboard.html."""
+
+    conn = _connect()
+    cursor = conn.cursor()
+
+    try:
+        # Count the total number of managers
+        manager_row = cursor.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM manager
+            """
+        ).fetchone()
+
+        total_managers = manager_row["total"] if manager_row else 0
+
+        # Active employee means the employee is on bench
+        bench_rows = cursor.execute(
+            """
+            SELECT
+                employee_id,
+                full_name,
+                email,
+                department,
+                designation,
+                location,
+                manager_id,
+                status
+            FROM employees
+            WHERE LOWER(TRIM(status)) = 'active'
+            ORDER BY full_name
+            """
+        ).fetchall()
+
+        bench_employees = []
+
+        for employee in bench_rows:
+            bench_employees.append(
+                {
+                    "employee_id": employee["employee_id"],
+                    "full_name": employee["full_name"],
+                    "initials": _initials(employee["full_name"]),
+                    "email": employee["email"] or "Not available",
+                    "department": employee["department"] or "Not assigned",
+                    "designation": employee["designation"] or "Not assigned",
+                    "location": employee["location"] or "Not specified",
+                    "availability": "Available",
+                }
+            )
+
+        # Get In Progress and Planned projects
+        projects = get_hr_projects(cursor)
+
+        active_projects = 0
+        planned_projects = 0
+
+        for project in projects:
+            project_status = project.get("status", "").strip().lower()
+
+            if project_status == "in progress":
+                active_projects += 1
+
+            elif project_status == "planned":
+                planned_projects += 1
+
+        return {
+            "hr_id": hr_id,
+            "hr_name": "HR",
+            "hr_initials": "HR",
+            "today": date.today().strftime("%a, %d %b %Y"),
+
+            "stats": {
+                "total_managers": total_managers,
+                "on_bench": len(bench_employees),
+                "active_projects": active_projects,
+                "planned_projects": planned_projects,
+            },
+
+            "bench_employees": bench_employees,
+            "projects": projects,
+        }
+
+    finally:
+        conn.close()
 
 # ---------- stat cards ----------
 def _stats(c: sqlite3.Cursor, manager_id: str) -> dict:

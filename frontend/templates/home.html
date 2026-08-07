@@ -30,12 +30,15 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
+
     body {
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
     }
+
     button, input, select { font: inherit; }
     button { cursor: pointer; }
     [hidden] { display: none !important; }
@@ -43,38 +46,60 @@
     /* ===== TOPBAR ===== */
     .topbar {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 0;
+      left: 0;
+      right: 0;
       height: var(--nav-height);
       z-index: 50;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 28px;
-      background: rgba(255, 255, 255, .94);
+      background: rgba(255, 255, 255, 0.94);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(14px);
     }
-    .brand { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 750; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 21px;
+      font-weight: 750;
+    }
+
     .brand-mark {
-      width: 38px; height: 38px; border-radius: 12px;
-      display: grid; place-items: center;
-      color: #fff; background: linear-gradient(135deg, #777bdd, #9b86df);
-      box-shadow: 0 8px 18px rgba(111, 115, 210, .25);
-      font-size: 14px; font-weight: 800;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, #777bdd, #9b86df);
+      box-shadow: 0 8px 18px rgba(111, 115, 210, 0.25);
+      font-size: 14px;
+      font-weight: 800;
     }
+
     .logout {
-      border: 0; border-radius: 12px; padding: 10px 16px;
-      color: #9f4650; background: #ffecee; font-weight: 650;
-      transition: .2s ease;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 16px;
+      color: #9f4650;
+      background: #ffecee;
+      font-weight: 650;
+      transition: 0.2s ease;
     }
+
     .logout:hover:not(:disabled) { background: #ffdde1; }
-    .logout:disabled { cursor: not-allowed; opacity: .65; }
+    .logout:disabled { cursor: not-allowed; opacity: 0.65; }
 
     /* ===== SIDEBAR ===== */
     .sidebar {
       position: fixed;
       top: var(--nav-height);
-      left: 0; bottom: 0;
+      left: 0;
+      bottom: 0;
       width: var(--sidebar-width);
       padding: 24px 16px;
       background: var(--sidebar);
@@ -82,22 +107,49 @@
       overflow-y: auto;
       z-index: 40;
     }
+
     .role-label {
       margin: 0 12px 14px;
-      font-size: 11px; color: #9097aa;
-      letter-spacing: .13em; font-weight: 800;
+      font-size: 11px;
+      color: #9097aa;
+      letter-spacing: 0.13em;
+      font-weight: 800;
       text-transform: uppercase;
     }
+
     .nav-list { display: grid; gap: 7px; }
+
     .nav-item {
-      width: 100%; border: 0; background: transparent; color: #646b7f;
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 14px; border-radius: 13px;
-      text-align: left; font-weight: 650; transition: .2s ease;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #646b7f;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 13px;
+      text-align: left;
+      font-weight: 650;
+      transition: 0.2s ease;
     }
-    .nav-item:hover { background: rgba(255, 255, 255, .65); color: var(--primary-dark); }
-    .nav-item.active { background: #fff; color: var(--primary-dark); box-shadow: 0 7px 18px rgba(77, 81, 145, .08); }
-    .nav-icon { width: 23px; text-align: center; font-size: 17px; }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.65);
+      color: var(--primary-dark);
+    }
+
+    .nav-item.active {
+      background: #fff;
+      color: var(--primary-dark);
+      box-shadow: 0 7px 18px rgba(77, 81, 145, 0.08);
+    }
+
+    .nav-icon {
+      width: 23px;
+      text-align: center;
+      font-size: 17px;
+    }
 
     /* ===== MAIN ===== */
     main {
@@ -105,17 +157,29 @@
       padding: calc(var(--nav-height) + 30px) 32px 40px;
       min-height: 100vh;
     }
+
     .page-head { margin-bottom: 24px; }
-    h1 { font-size: 28px; margin: 0 0 7px; letter-spacing: -.03em; }
-    .subtitle { color: var(--muted); margin: 0; font-size: 14px; }
 
-    section.page { animation: fade .22s ease; }
-    @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    h1 {
+      font-size: 28px;
+      margin: 0 0 7px;
+      letter-spacing: -0.03em;
+    }
 
-    /* ============================================================
-       ===== OPTION B : HERO + CAPABILITY STRIP (home only) ======
-       (purely decorative — NOT buttons, no click, no hover-lift)
-       ============================================================ */
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14px;
+    }
+
+    section.page { animation: fade 0.22s ease; }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* ===== HOME HERO ===== */
     .home-wrap {
       width: min(100%, 1100px);
       margin: 0 auto;
@@ -123,7 +187,6 @@
       gap: 22px;
     }
 
-    /* --- hero panel --- */
     .hero {
       position: relative;
       overflow: hidden;
@@ -136,64 +199,126 @@
       display: flex;
       align-items: center;
     }
-    .hero-copy { position: relative; z-index: 2; max-width: 60%; }
-    .hero-mark {
-      width: 54px; height: 54px; margin-bottom: 16px;
-      border-radius: 16px; display: grid; place-items: center;
-      color: #fff; background: linear-gradient(135deg, #777bdd, #9b86df);
-      box-shadow: 0 10px 22px rgba(111, 115, 210, .28);
-      font-size: 18px; font-weight: 800;
-    }
-    .hero h1 { font-size: 34px; margin-bottom: 10px; }
-    .hero p { color: var(--muted); font-size: 15px; max-width: 420px; }
 
-    /* soft decorative gradient blobs on the right of hero */
-    .hero-art { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-    .blob {
-      position: absolute; border-radius: 50%;
-      filter: blur(6px); opacity: .9;
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      max-width: 60%;
     }
+
+    .hero-mark {
+      width: 54px;
+      height: 54px;
+      margin-bottom: 16px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, #777bdd, #9b86df);
+      box-shadow: 0 10px 22px rgba(111, 115, 210, 0.28);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .hero h1 { font-size: 34px; margin-bottom: 10px; }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 420px;
+    }
+
+    .hero-art {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(6px);
+      opacity: 0.9;
+    }
+
     .blob-1 {
-      width: 300px; height: 300px; right: -60px; top: -70px;
+      width: 300px;
+      height: 300px;
+      right: -60px;
+      top: -70px;
       background: radial-gradient(circle at 30% 30%, #c9c4ff, #e7e0ff 70%);
     }
+
     .blob-2 {
-      width: 200px; height: 200px; right: 120px; bottom: -70px;
+      width: 200px;
+      height: 200px;
+      right: 120px;
+      bottom: -70px;
       background: radial-gradient(circle at 30% 30%, #d7f3e6, #eafaf1 70%);
     }
+
     .blob-3 {
-      width: 140px; height: 140px; right: 30px; top: 60px;
+      width: 140px;
+      height: 140px;
+      right: 30px;
+      top: 60px;
       background: radial-gradient(circle at 30% 30%, #ffe4d2, #fff0e7 70%);
     }
-    /* little floating glass chips for a graphical touch */
+
     .chip {
-      position: absolute; z-index: 2;
-      background: rgba(255, 255, 255, .82);
+      position: absolute;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.82);
       border: 1px solid var(--border);
       border-radius: 14px;
-      box-shadow: 0 8px 20px rgba(67, 71, 105, .10);
+      box-shadow: 0 8px 20px rgba(67, 71, 105, 0.10);
       backdrop-filter: blur(6px);
     }
+
     .chip-1 { width: 150px; height: 58px; right: 60px; top: 40px; }
     .chip-2 { width: 92px; height: 72px; right: 40px; bottom: 44px; }
-    .chip .line { height: 8px; border-radius: 6px; background: #e7e8f3; margin: 9px 12px; }
+
+    .chip .line {
+      height: 8px;
+      border-radius: 6px;
+      background: #e7e8f3;
+      margin: 9px 12px;
+    }
+
     .chip .line.sm { width: 42%; }
+
     .chip .dot {
-      width: 26px; height: 26px; border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
       background: linear-gradient(135deg, #b9bcf0, #d9c9f2);
       margin: 10px 0 0 12px;
     }
-    .chip-bars { display: flex; align-items: flex-end; gap: 6px; height: 100%; padding: 14px; }
-    .chip-bars span { width: 12px; border-radius: 4px; background: #bfe6d3; }
 
-    /* --- capability strip (4 cards) --- */
+    .chip-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 100%;
+      padding: 14px;
+    }
+
+    .chip-bars span {
+      width: 12px;
+      border-radius: 4px;
+      background: #bfe6d3;
+    }
+
+    /* ===== CAPABILITY CARDS ===== */
     .cap-strip {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 18px;
     }
+
     .cap-card {
-      cursor: default;                /* NOT a button */
+      cursor: default;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 18px;
@@ -201,19 +326,35 @@
       box-shadow: var(--shadow);
       text-align: center;
     }
+
     .cap-icon {
-      width: 56px; height: 56px; margin: 0 auto 14px;
-      border-radius: 16px; display: grid; place-items: center;
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 14px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
       font-size: 24px;
     }
-    .cap-icon.mint     { background: var(--mint); }
-    .cap-icon.peach    { background: var(--peach); }
-    .cap-icon.blue     { background: var(--blue); }
-    .cap-icon.lavender { background: var(--lavender); }
-    .cap-card h3 { font-size: 16px; margin-bottom: 6px; letter-spacing: -.01em; }
-    .cap-card p { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
 
-    /* ===== cards / forms (other sections) ===== */
+    .cap-icon.mint { background: var(--mint); }
+    .cap-icon.peach { background: var(--peach); }
+    .cap-icon.blue { background: var(--blue); }
+    .cap-icon.lavender { background: var(--lavender); }
+
+    .cap-card h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .cap-card p {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* ===== FORMS ===== */
     .welcome-panel {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -222,13 +363,21 @@
       text-align: center;
       box-shadow: var(--shadow);
     }
+
     .welcome-mark {
-      width: 62px; height: 62px; margin: 0 auto 18px;
-      border-radius: 18px; display: grid; place-items: center;
-      color: #fff; background: linear-gradient(135deg, #777bdd, #9b86df);
-      box-shadow: 0 10px 22px rgba(111, 115, 210, .28);
-      font-size: 22px; font-weight: 800;
+      width: 62px;
+      height: 62px;
+      margin: 0 auto 18px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, #777bdd, #9b86df);
+      box-shadow: 0 10px 22px rgba(111, 115, 210, 0.28);
+      font-size: 22px;
+      font-weight: 800;
     }
+
     .welcome-panel h1 { margin-bottom: 8px; }
     .welcome-panel p { color: var(--muted); }
 
@@ -240,10 +389,19 @@
       padding: 26px;
       box-shadow: var(--shadow);
     }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 650; }
 
-    select, input[type="text"], input[type="file"] {
+    .form-group { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    select,
+    input[type="text"],
+    input[type="file"] {
       width: 100%;
       padding: 12px 14px;
       border: 1px solid var(--border);
@@ -251,10 +409,13 @@
       outline: none;
       color: var(--text);
       background: #fbfaff;
-      transition: .2s ease;
+      transition: 0.2s ease;
     }
+
     select { cursor: pointer; padding-right: 42px; }
-    select:focus, input:focus {
+
+    select:focus,
+    input:focus {
       border-color: #aaaeea;
       box-shadow: 0 0 0 3px #eeeeff;
     }
@@ -262,13 +423,22 @@
     .primary {
       margin-top: 4px;
       padding: 12px 24px;
-      border: 0; border-radius: 12px;
-      color: #fff; background: var(--primary);
-      font-weight: 700; transition: .2s ease;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--primary);
+      font-weight: 700;
+      transition: 0.2s ease;
     }
+
     .primary:hover { background: var(--primary-dark); }
 
-    .message { margin-top: 16px; color: var(--success); font-size: 14px; font-weight: 600; }
+    .message {
+      margin-top: 16px;
+      color: var(--success);
+      font-size: 14px;
+      font-weight: 600;
+    }
 
     .id-block {
       background: var(--warn-bg);
@@ -277,7 +447,12 @@
       border-radius: 12px;
       margin-bottom: 20px;
     }
-    .id-block p { margin: 0 0 8px; font-size: 13px; color: var(--warn-text); }
+
+    .id-block p {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--warn-text);
+    }
 
     #resumeResult {
       margin-top: 16px;
@@ -288,10 +463,11 @@
 
     @media (max-width: 1050px) {
       .card { width: 100%; }
-      .cap-strip { grid-template-columns: repeat(2, 1fr); }  /* 4 -> 2x2 */
+      .cap-strip { grid-template-columns: repeat(2, 1fr); }
       .hero-copy { max-width: 100%; }
-      .chip, .blob-3 { display: none; }                      /* keep hero clean when tight */
+      .chip, .blob-3 { display: none; }
     }
+
     @media (max-width: 720px) {
       :root { --sidebar-width: 78px; }
       .sidebar { padding: 20px 10px; }
@@ -303,67 +479,108 @@
       .hero { padding: 34px 26px; }
       .hero h1 { font-size: 27px; }
     }
+
     @media (max-width: 560px) {
-      .cap-strip { grid-template-columns: 1fr; }             /* stack on phones */
+      .cap-strip { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <!-- ===== TOPBAR ===== -->
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">IC</span><span>IntelliCrew</span></div>
+    <div class="brand">
+      <span class="brand-mark">IC</span>
+      <span>IntelliCrew</span>
+    </div>
+
     <button id="logoutButton" class="logout" type="button">
       <span id="logoutButtonText">Logout</span>
     </button>
   </header>
 
-  <!-- ===== CONSTANT SIDEBAR (buttons only) ===== -->
+  <!-- ===== CONSTANT SIDEBAR ===== -->
   <aside class="sidebar">
     <p class="role-label">{{ userType }} Portal</p>
-    <nav class="nav-list">
 
-      <button id="homeButton" class="nav-item active" type="button" data-target="welcomeContent">
+    <nav class="nav-list">
+      <!-- Home -->
+      <button
+        id="homeButton"
+        class="nav-item active"
+        type="button"
+        data-target="welcomeContent"
+      >
         <span class="nav-icon" aria-hidden="true">H</span>
         <span class="nav-text">Home</span>
       </button>
 
-      {% if userType == "manager" %}
-      <button id="dashboardButton" class="nav-item" type="button" data-href="/manager/dashboard">
+      <!-- Manager Dashboard -->
+      {% if userType | lower == "manager" %}
+      <button
+        id="dashboardButton"
+        class="nav-item"
+        type="button"
+        data-href="/manager/dashboard"
+      >
+        <span class="nav-icon" aria-hidden="true">D</span>
+        <span class="nav-text">Dashboard</span>
+      </button>
+
+      <!-- HR Dashboard -->
+      {% elif userType | lower == "hr" %}
+      <button
+        id="dashboardButton"
+        class="nav-item"
+        type="button"
+        data-href="/hr/dashboard"
+      >
         <span class="nav-icon" aria-hidden="true">D</span>
         <span class="nav-text">Dashboard</span>
       </button>
       {% endif %}
 
-      <!-- Create Requirement (all roles) -->
-      <button id="createRequirementButton" class="nav-item" type="button" data-target="requirementContent">
+      <!-- Create Requirement for all roles -->
+      <button
+        id="createRequirementButton"
+        class="nav-item"
+        type="button"
+        data-target="requirementContent"
+      >
         <span class="nav-icon" aria-hidden="true">+</span>
         <span class="nav-text">Create Requirement</span>
       </button>
 
-      <!-- Video Summarizer (all roles) -->
-      <button id="summarizerButton" class="nav-item" type="button" data-target="summarizerContent">
+      <!-- Video Summarizer for all roles -->
+      <button
+        id="summarizerButton"
+        class="nav-item"
+        type="button"
+        data-target="summarizerContent"
+      >
         <span class="nav-icon" aria-hidden="true">V</span>
         <span class="nav-text">Video Summarizer</span>
       </button>
 
-      <!-- Upload Resume (HR ONLY) -->
-      {% if userType == "hr" %}
-      <button id="uploadResumeButton" class="nav-item" type="button" data-target="resumeContent">
+      <!-- Upload Resume for HR only -->
+      {% if userType | lower == "hr" %}
+      <button
+        id="uploadResumeButton"
+        class="nav-item"
+        type="button"
+        data-target="resumeContent"
+      >
         <span class="nav-icon" aria-hidden="true">U</span>
         <span class="nav-text">Upload Resume</span>
       </button>
       {% endif %}
-
     </nav>
   </aside>
 
-  <!-- ===== RIGHT CONTENT (sections only, swap by nav) ===== -->
+  <!-- ===== RIGHT CONTENT ===== -->
   <main>
-    <!-- welcome / home  (OPTION B : hero + capability strip) -->
+    <!-- Home -->
     <section id="welcomeContent" class="page">
       <div class="home-wrap">
-
-        <!-- hero -->
         <div class="hero">
           <div class="hero-copy">
             <div class="hero-mark">IC</div>
@@ -371,122 +588,159 @@
             <p>All the tools you need to streamline hiring and communications, in one place.</p>
           </div>
 
-          <!-- decorative graphic (pure CSS, no interaction) -->
           <div class="hero-art" aria-hidden="true">
             <span class="blob blob-1"></span>
             <span class="blob blob-2"></span>
             <span class="blob blob-3"></span>
+
             <div class="chip chip-1">
               <div class="dot"></div>
               <div class="line"></div>
               <div class="line sm"></div>
             </div>
+
             <div class="chip chip-2">
               <div class="chip-bars">
-                <span style="height:40%"></span>
-                <span style="height:70%"></span>
-                <span style="height:55%"></span>
-                <span style="height:90%"></span>
+                <span style="height: 40%"></span>
+                <span style="height: 70%"></span>
+                <span style="height: 55%"></span>
+                <span style="height: 90%"></span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- capability strip (informational, not clickable) -->
         <div class="cap-strip" aria-hidden="true">
           <div class="cap-card">
             <div class="cap-icon mint">📄</div>
             <h3>Talent Insights</h3>
-            <p>Pulls skills &amp; details straight out of resumes.</p>
+            <p>Pulls skills and details straight out of resumes.</p>
           </div>
+
           <div class="cap-card">
             <div class="cap-icon peach">🎬</div>
             <h3>Video Digest</h3>
-            <p>Turns long videos &amp; YouTube links into short summaries.</p>
+            <p>Turns long videos and YouTube links into short summaries.</p>
           </div>
+
           <div class="cap-card">
             <div class="cap-icon blue">✉️</div>
             <h3>Smart Outreach</h3>
-            <p>Auto-writes &amp; sends match emails to the right people.</p>
+            <p>Auto-writes and sends match emails to the right people.</p>
           </div>
+
           <div class="cap-card">
             <div class="cap-icon lavender">📊</div>
             <h3>Centralised Reports</h3>
             <p>One place for all your platform reports.</p>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- create requirement (rendered from create_requirement.html) -->
+    <!-- Create Requirement -->
     <section id="requirementContent" class="page" hidden>
       {% include "create_requirement.html" %}
     </section>
 
-    <!-- upload resume (HR ONLY, rendered from resume.html) -->
-    {% if userType == "hr" %}
+    <!-- Upload Resume for HR only -->
+    {% if userType | lower == "hr" %}
     <section id="resumeContent" class="page" hidden>
       {% include "resume.html" %}
     </section>
     {% endif %}
 
-    <!-- video summarizer (rendered from summarizer.html) -->
+    <!-- Video Summarizer -->
     <section id="summarizerContent" class="page" hidden>
       {% include "summarizer.html" %}
     </section>
   </main>
 
   <script>
-    /* ---------- sidebar nav switching (sidebar constant, right swaps) ---------- */
+    /* ---------- Sidebar navigation ---------- */
     const navItems = document.querySelectorAll(".nav-item");
 
     navItems.forEach((btn) => {
       btn.addEventListener("click", (event) => {
-        // Dashboard button navigates to a separate page
+        // Dashboard opens as a separate page.
         if (btn.dataset.href) {
           window.location.href = btn.dataset.href;
           return;
         }
 
-        // buttons with data-target just swap the section on this page
+        // Other buttons switch sections on the home page.
         if (!btn.dataset.target) return;
 
         event.preventDefault();
 
-        // hide ALL content sections (including Home/welcome)
-        document.querySelectorAll("main > section").forEach((sec) => {
-          sec.hidden = true;
+        document.querySelectorAll("main > section").forEach((section) => {
+          section.hidden = true;
         });
-        // show the section this nav item targets
-        document.getElementById(btn.dataset.target).hidden = false;
 
-        // active highlight
-        navItems.forEach((b) => b.classList.remove("active"));
+        const targetSection = document.getElementById(btn.dataset.target);
+
+        if (targetSection) {
+          targetSection.hidden = false;
+        }
+
+        navItems.forEach((item) => item.classList.remove("active"));
         btn.classList.add("active");
 
         window.scrollTo(0, 0);
       });
     });
 
-    /* ---------- logout ---------- */
+    /* ---------- Open a requested section from the URL hash ---------- */
+    function openSectionFromHash() {
+      const sectionId = window.location.hash.replace("#", "");
+
+      if (!sectionId) return;
+
+      const matchingButton = document.querySelector(
+        `.nav-item[data-target="${sectionId}"]`
+      );
+
+      if (matchingButton) {
+        matchingButton.click();
+      }
+    }
+
+    openSectionFromHash();
+    window.addEventListener("hashchange", openSectionFromHash);
+
+    /* ---------- Logout ---------- */
     const logoutButton = document.getElementById("logoutButton");
     const logoutButtonText = document.getElementById("logoutButtonText");
 
     async function logout() {
       logoutButton.disabled = true;
       logoutButtonText.textContent = "Logging out...";
+
       try {
-        const response = await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
+        const response = await fetch("/api/logout", {
+          method: "POST",
+          credentials: "same-origin"
+        });
+
         let data = {};
-        try { data = await response.json(); } catch { data = {}; }
-        if (!response.ok) throw new Error(data.detail || "Logout failed.");
+
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(data.detail || "Logout failed.");
+        }
+
         window.location.replace(data.redirect_url || "/");
       } catch (error) {
         console.error("Logout failed:", error);
         window.location.replace("/");
       }
     }
+
     logoutButton.addEventListener("click", logout);
   </script>
 </body>

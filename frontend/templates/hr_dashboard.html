@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IntelliCrew | HR Dashboard</title>
+<style>
+:root{--bg:#f7f8fb;--panel:#fff;--side:#eef1ff;--brand:#6f73d2;--text:#303548;--muted:#7b8398;--line:#e7e9f1;--shadow:0 12px 30px #43476914;--nav:70px;--side-w:245px}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text)}button{font:inherit;cursor:pointer}.top{position:fixed;inset:0 0 auto;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:#fffffff2;border-bottom:1px solid var(--line);z-index:5}.brand,.profile{display:flex;align-items:center;gap:11px}.logo,.avatar{display:grid;place-items:center;font-weight:800}.logo{width:38px;height:38px;border-radius:12px;color:#fff;background:linear-gradient(135deg,#777bdd,#a58ae4)}.avatar{width:38px;height:38px;border-radius:50%;background:#ffe9dc;color:#a35d3e}.profile small{display:block;color:var(--muted)}.sidebar{position:fixed;top:var(--nav);left:0;bottom:0;width:var(--side-w);padding:24px 16px;background:var(--side);border-right:1px solid #e2e4f4;overflow-y:auto}.role-label{margin:0 12px 14px;font-size:11px;color:#9097aa;letter-spacing:.13em;font-weight:800;text-transform:uppercase}.nav-list{display:grid;gap:7px}.nav-item{width:100%;border:0;background:transparent;color:#646b7f;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:13px;text-align:left;font-weight:650;transition:.2s ease}.nav-item:hover{background:rgba(255,255,255,.65);color:#5559b8}.nav-item.active{background:#fff;color:#5559b8;box-shadow:0 7px 18px rgba(77,81,145,.08)}.nav-icon{width:23px;text-align:center;font-size:17px}.logout{border:0;border-radius:12px;padding:10px 16px;color:#9f4650;background:#ffecee;font-weight:650;transition:.2s}.logout:hover:not(:disabled){background:#ffdde1}.logout:disabled{cursor:not-allowed;opacity:.65}main{margin-left:var(--side-w);padding:100px 32px 40px}.head{display:flex;justify-content:space-between;align-items:start;margin-bottom:24px}.head h1{font-size:28px;margin-bottom:6px}.head p,.date{color:var(--muted);font-size:13px}.date{padding:9px 13px;background:#fff;border:1px solid var(--line);border-radius:11px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:17px;margin-bottom:22px}.stat{position:relative;overflow:hidden;min-height:175px;padding:20px;border-radius:22px;box-shadow:var(--shadow);transition:.2s}.stat:hover{transform:translateY(-4px);box-shadow:0 18px 38px #43476924}.stat:nth-child(1){background:linear-gradient(135deg,#eee7ff,#faf8ff)}.stat:nth-child(2){background:linear-gradient(135deg,#dff5ea,#f6fffa)}.stat:nth-child(3){background:linear-gradient(135deg,#e3efff,#f7fbff)}.stat:after{content:"";position:absolute;width:120px;height:120px;right:-38px;bottom:-50px;border-radius:50%;background:#ffffff80}.stat-top,.stat-foot{display:flex;justify-content:space-between;align-items:center}.stat-top{font-size:13px;font-weight:700}.icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#ffffffb8;font-size:20px;box-shadow:0 7px 16px #43476912}.value{font-size:34px;font-weight:850;margin:15px 0 3px}.note{color:var(--muted);font-size:12px}.track{height:7px;margin-top:15px;background:#ffffffc7;border-radius:99px;overflow:hidden}.fill{height:100%;display:block;border-radius:inherit;background:linear-gradient(90deg,#7277d7,#ae8fe6)}.stat-foot{margin-top:7px;color:var(--muted);font-size:11px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:var(--shadow);margin-bottom:22px}.panel h2{font-size:17px;margin-bottom:16px}.table{overflow:auto}.row{min-width:760px;display:grid;grid-template-columns:1.5fr 1fr 1fr .8fr .7fr;gap:12px;align-items:center;padding:13px 6px;border-top:1px solid var(--line);font-size:13px}.row.head-row{border:0;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase}.person{display:flex;align-items:center;gap:10px}.person b{display:block}.person small{color:var(--muted)}.mini-avatar{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#eee7ff;color:#6a5aa8;font-weight:800}.badge{width:max-content;padding:5px 9px;border-radius:99px;background:#e2f7ea;color:#397a52;font-size:11px;font-weight:750}.projects{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.project{padding:18px;border:1px solid var(--line);border-radius:16px}.project h3{font-size:15px;margin:12px 0 6px}.project p{color:var(--muted);font-size:12px}.planned{background:#fff2cf;color:#957425}.empty{padding:20px;text-align:center;color:var(--muted);font-size:13px}@media(max-width:950px){.stats,.projects{grid-template-columns:1fr}.stats{max-width:650px}}@media(max-width:700px){:root{--side-w:76px}.sidebar{padding:20px 10px}.role-label,.nav-text,.profile div{display:none}.nav-item{justify-content:center;padding:13px 8px}.top{padding:0 15px}main{padding:92px 16px 30px}.date{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo">IC</span>
+    <b>IntelliCrew</b>
+  </div>
+
+  <button id="logoutButton" class="logout" type="button">
+    <span id="logoutButtonText">Logout</span>
+  </button>
+</header>
+<aside class="sidebar">
+  <p class="role-label">HR Portal</p>
+
+  <nav class="nav-list">
+    <button class="nav-item" type="button" onclick="location.href='/home'">
+      <span class="nav-icon" aria-hidden="true">H</span>
+      <span class="nav-text">Home</span>
+    </button>
+
+    <button class="nav-item active" type="button" onclick="location.href='/hr/dashboard'">
+      <span class="nav-icon" aria-hidden="true">D</span>
+      <span class="nav-text">Dashboard</span>
+    </button>
+
+    <button class="nav-item" type="button" onclick="location.href='/home#requirementContent'">
+      <span class="nav-icon" aria-hidden="true">+</span>
+      <span class="nav-text">Create Requirement</span>
+    </button>
+
+    <button class="nav-item" type="button" onclick="location.href='/home#summarizerContent'">
+      <span class="nav-icon" aria-hidden="true">V</span>
+      <span class="nav-text">Video Summarizer</span>
+    </button>
+
+    <button class="nav-item" type="button" onclick="location.href='/home#resumeContent'">
+      <span class="nav-icon" aria-hidden="true">U</span>
+      <span class="nav-text">Upload Resume</span>
+    </button>
+
+  </nav>
+</aside>
+<main>
+<div class="head"><div><h1>Welcome, {{ hr_name|default('HR') }}</h1><p>Quick view of your workforce and projects.</p></div><span class="date">{{ today|default('Today') }}</span></div>
+<div class="stats">
+  <article class="stat"><div class="stat-top"><span>No. of Managers</span><span class="icon">👥</span></div><div class="value">{{ stats.total_managers|default(0) }}</div><div class="note">Managers across the organisation</div><div class="track"><span class="fill" style="width:78%"></span></div><div class="stat-foot"><span>Manager strength</span><b>78%</b></div></article>
+  <article class="stat"><div class="stat-top"><span>Employees on Bench</span><span class="icon">🧑‍💻</span></div><div class="value">{{ stats.on_bench|default(0) }}</div><div class="note">Active employees available for work</div><div class="track"><span class="fill" style="width:62%"></span></div><div class="stat-foot"><span>Available capacity</span><b>62%</b></div></article>
+  <article class="stat"><div class="stat-top"><span>Active Projects</span><span class="icon">📊</span></div><div class="value">{{ stats.active_projects|default(0) }}</div><div class="note">{{ stats.planned_projects|default(0) }} projects planned</div><div class="track"><span class="fill" style="width:70%"></span></div><div class="stat-foot"><span>Project activity</span><b>70%</b></div></article>
+</div>
+<section class="panel"><h2>Employees on Bench</h2><div class="table"><div class="row head-row"><span>Employee</span><span>Department</span><span>Designation</span><span>Location</span><span>Status</span></div>{% for e in bench_employees|default([]) %}<div class="row"><div class="person"><span class="mini-avatar">{{ e.initials }}</span><div><b>{{ e.full_name }}</b><small>{{ e.employee_id }} · {{ e.email }}</small></div></div><span>{{ e.department }}</span><span>{{ e.designation }}</span><span>{{ e.location }}</span><span class="badge">Available</span></div>{% else %}<div class="empty">No active bench employees found.</div>{% endfor %}</div></section>
+<section class="panel"><h2>Active and Planned Projects</h2><div class="projects">{% for p in projects|default([]) %}<article class="project"><span class="badge {% if p.status=='Planned' %}planned{% endif %}">{{ p.status }}</span><h3>{{ p.project_name|default(p.name)|default('Project') }}</h3>{% if p.client is defined %}<p>Client: {{ p.client }}</p>{% endif %}</article>{% else %}<div class="empty">No active or planned projects found.</div>{% endfor %}</div></section>
+</main>
+
+<script>
+  const logoutButton = document.getElementById("logoutButton");
+  const logoutButtonText = document.getElementById("logoutButtonText");
+
+  logoutButton.addEventListener("click", async () => {
+    logoutButton.disabled = true;
+    logoutButtonText.textContent = "Logging out...";
+
+    try {
+      const response = await fetch("/api/logout", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+      const data = await response.json().catch(() => ({}));
+      window.location.replace(data.redirect_url || "/");
+    } catch (error) {
+      window.location.replace("/");
+    }
+  });
+</script>
+</body>
+</html>

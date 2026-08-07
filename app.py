@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from security import verify_password
-from fetch_sqlite_data.dashboard_data import get_manager_dashboard
+from fetch_sqlite_data.dashboard_data import get_manager_dashboard,get_hr_dashboard,_initials
 from resume_agent.embed_agent import run_embedding_agent
 from mailAgent.send_agent import run_mail_agent
 
@@ -140,7 +140,6 @@ def current_user(sid: str | None = Cookie(None, alias=COOKIE)):
 # ---------- resume upload (HR only) — now goes through the orchestrator ----------
 from typing import List, Optional
 
-from typing import List, Optional
 
 # these live in Emp_DataAgent.db (helpers shown in section 4)
 # from Emp_DataAgent.db import log_resume
@@ -246,7 +245,51 @@ def find_employees(payload: QueryRequest, sid: str | None = Cookie(None, alias=C
         "status": result.get("status"),
         "matches": result.get("matches", []),
     }
-    
+
+
+
+
+
+
+# ---------- HR dashboard endpoint ----------
+@app.get("/hr/dashboard",response_class=HTMLResponse,include_in_schema=False,)
+def hr_dashboard(request: Request,sid: str | None = Cookie(None, alias=COOKIE),):
+    # Get the logged-in user's session
+    session = get_session(sid)
+
+    # Redirect to login if the session does not exist
+    if not session:
+        return RedirectResponse("/", status_code=303)
+
+    # Allow only HR users
+    if session["role"] != "HR":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only HR can view this dashboard.",
+        )
+
+    # Get the HR dashboard data
+    data = get_hr_dashboard(session["user_id"])
+
+    # Get HR name from the session if available
+    hr_name = (
+        session.get("full_name")
+        or session.get("name")
+        or "HR"
+    )
+
+    data["hr_name"] = hr_name
+    data["hr_initials"] = _initials(hr_name)
+
+    # Render the HR dashboard HTML
+    return templates.TemplateResponse(
+        request=request,
+        name="hr_dashboard.html",
+        context={
+            "request": request,
+            **data,
+        },
+    )
     
 # ---------- manager dashboard (MANAGER only) ----------
 @app.get("/manager/dashboard", response_class=HTMLResponse, include_in_schema=False)

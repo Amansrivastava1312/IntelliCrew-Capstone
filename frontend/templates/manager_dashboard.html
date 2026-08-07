@@ -1,307 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IntelliCrew | Manager Dashboard</title>
-  <style>
-    :root {
-      --bg: #f7f8fb;
-      --panel: #ffffff;
-      --sidebar: #eef1ff;
-      --primary: #6f73d2;
-      --primary-dark: #5559b8;
-      --mint: #dff5ea;
-      --peach: #ffe9dc;
-      --blue: #e3efff;
-      --lavender: #eee7ff;
-      --text: #2f3445;
-      --muted: #778096;
-      --border: #e6e8ef;
-      --shadow: 0 10px 30px rgba(67, 71, 105, 0.08);
-      --sidebar-width: 250px;
-      --nav-height: 70px;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    button { cursor: pointer; font: inherit; }
-    [hidden] { display: none !important; }
-
-    /* ===== TOPBAR ===== */
-    .topbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: var(--nav-height);
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      background: rgba(255, 255, 255, .94);
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(14px);
-    }
-    .brand { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 750; }
-    .brand-mark {
-      width: 38px; height: 38px; border-radius: 12px;
-      display: grid; place-items: center;
-      color: #fff; background: linear-gradient(135deg, #777bdd, #9b86df);
-      box-shadow: 0 8px 18px rgba(111, 115, 210, .25);
-      font-size: 14px; font-weight: 800;
-    }
-    .top-profile { display: flex; align-items: center; gap: 10px; }
-    .top-profile .avatar {
-      width: 38px; height: 38px; border-radius: 50%;
-      display: grid; place-items: center;
-      background: var(--peach); color: #a35d3e; font-weight: 800; font-size: 13px;
-    }
-    .top-profile strong { display: block; font-size: 13px; }
-    .top-profile span { color: var(--muted); font-size: 11px; }
-
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      position: fixed;
-      top: var(--nav-height);
-      left: 0; bottom: 0;
-      width: var(--sidebar-width);
-      padding: 24px 16px;
-      background: var(--sidebar);
-      border-right: 1px solid #e2e4f4;
-      overflow-y: auto;
-      z-index: 40;
-    }
-    .role-label {
-      margin: 0 12px 14px;
-      font-size: 11px; color: #9097aa;
-      letter-spacing: .13em; font-weight: 800;
-      text-transform: uppercase;
-    }
-    .nav-list { display: grid; gap: 7px; }
-    .nav-item {
-      width: 100%; border: 0; background: transparent; color: #646b7f;
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 14px; border-radius: 13px;
-      text-align: left; font-weight: 650; transition: .2s ease;
-    }
-    .nav-item:hover { background: rgba(255, 255, 255, .65); color: var(--primary-dark); }
-    .nav-item.active { background: #fff; color: var(--primary-dark); box-shadow: 0 7px 18px rgba(77, 81, 145, .08); }
-    .nav-icon { width: 23px; text-align: center; font-size: 17px; }
-
-    /* ===== MAIN ===== */
-    main {
-      margin-left: var(--sidebar-width);
-      padding: calc(var(--nav-height) + 30px) 32px 40px;
-      min-height: 100vh;
-    }
-    .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 24px; }
-    h1 { font-size: 28px; margin: 0 0 7px; letter-spacing: -.03em; }
-    .subtitle { color: var(--muted); margin: 0; font-size: 14px; }
-    .date-pill { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; color: var(--muted); font-size: 13px; white-space: nowrap; }
-
-    /* ===== STAT CARDS ===== */
-    .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 16px; margin-bottom: 22px; }
-    .stat-card { border: 1px solid rgba(255,255,255,.85); border-radius: 20px; padding: 19px; min-height: 142px; box-shadow: var(--shadow); }
-    .stat-card:nth-child(1) { background: var(--lavender); }
-    .stat-card:nth-child(2) { background: var(--mint); }
-    .stat-card:nth-child(3) { background: var(--blue); }
-    .stat-card:nth-child(4) { background: var(--peach); }
-    .stat-top { display: flex; justify-content: space-between; align-items: center; color: #646b7f; font-size: 13px; font-weight: 650; }
-    .stat-icon { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,.65); }
-    .stat-value { margin: 13px 0 3px; font-size: 29px; line-height: 1; font-weight: 800; }
-    .stat-note { color: var(--muted); font-size: 12px; }
-
-    /* ===== PANELS ===== */
-    .grid-two { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; margin-bottom: 22px; }
-    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); }
-    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 17px; }
-    .panel h2 { font-size: 17px; margin: 0; }
-
-    .employee-row { display: grid; grid-template-columns: 1.6fr .9fr .9fr .6fr; gap: 12px; align-items: center; padding: 13px 7px; border-top: 1px solid var(--border); font-size: 13px; }
-    .employee-row.header { border: 0; color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; }
-    .person { display: flex; gap: 10px; align-items: center; min-width: 0; }
-    .person .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--lavender); color: #6a5aa8; font-weight: 800; font-size: 12px; }
-    .person strong { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .person small { color: var(--muted); }
-    .badge { display: inline-flex; align-items: center; width: max-content; border-radius: 999px; padding: 5px 9px; font-size: 11px; font-weight: 750; }
-    .available { background: #e2f7ea; color: #397a52; }
-    .partial { background: #fff2cf; color: #957425; }
-    .allocated { background: #e7edff; color: #5267a6; }
-
-    .skill-list { display: grid; gap: 14px; }
-    .skill-name { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-    .bar { height: 7px; border-radius: 999px; background: #eff0f5; overflow: hidden; }
-    .bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#888bdf,#b7a1eb); }
-
-    .project-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
-    .project-card { padding: 19px; background: #fff; border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); }
-    .project-card h3 { font-size: 15px; margin: 13px 0 5px; }
-    .project-card p { color: var(--muted); font-size: 12px; margin: 0 0 6px; }
-    .project-meta { display: flex; justify-content: space-between; color: #646b7f; font-size: 11px; margin-top: 12px; }
-
-    .empty { padding: 22px 8px; color: var(--muted); font-size: 13px; text-align: center; }
-
-    @media (max-width: 1050px) {
-      .stats { grid-template-columns: repeat(2,1fr); }
-      .grid-two { grid-template-columns: 1fr; }
-      .project-grid { grid-template-columns: repeat(2,1fr); }
-    }
-    @media (max-width: 720px) {
-      :root { --sidebar-width: 78px; }
-      .sidebar { padding: 20px 10px; }
-      .role-label, .nav-text { display: none; }
-      .nav-item { justify-content: center; padding: 13px 8px; }
-      main { padding-left: 18px; padding-right: 18px; }
-      .stats, .project-grid { grid-template-columns: 1fr; }
-      .date-pill, .top-profile span, .top-profile strong { display: none; }
-      .topbar { padding: 0 16px; }
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IntelliCrew | Manager Dashboard</title>
+<style>
+:root{--bg:#f7f8fb;--panel:#fff;--side:#eef1ff;--primary:#6f73d2;--dark:#5559b8;--text:#2f3445;--muted:#778096;--line:#e6e8ef;--shadow:0 10px 30px #43476914;--side-w:250px;--nav-h:70px}*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text)}button{font:inherit;cursor:pointer}.topbar{position:fixed;inset:0 0 auto;height:var(--nav-h);z-index:50;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:#fffffff0;border-bottom:1px solid var(--line);backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:750}.brand-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;color:#fff;background:linear-gradient(135deg,#777bdd,#9b86df);box-shadow:0 8px 18px #6f73d240;font-size:14px;font-weight:800}.logout{border:0;border-radius:12px;padding:10px 16px;color:#9f4650;background:#ffecee;font-weight:650}.logout:hover{background:#ffdde1}.logout:disabled{opacity:.65}.sidebar{position:fixed;top:var(--nav-h);left:0;bottom:0;width:var(--side-w);padding:24px 16px;background:var(--side);border-right:1px solid #e2e4f4;overflow:auto}.role-label{margin:0 12px 14px;color:#9097aa;font-size:11px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.nav-list{display:grid;gap:7px}.nav-item{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;border-radius:13px;background:transparent;color:#646b7f;text-align:left;font-weight:650;transition:.2s}.nav-item:hover{background:#ffffffa6;color:var(--dark)}.nav-item.active{background:#fff;color:var(--dark);box-shadow:0 7px 18px #4d519114}.nav-icon{width:23px;text-align:center;font-size:17px}main{margin-left:var(--side-w);padding:100px 32px 40px}.page-head{display:flex;justify-content:space-between;align-items:start;gap:20px;margin-bottom:24px}.page-head h1{font-size:28px;margin-bottom:7px}.subtitle,.date-pill{color:var(--muted);font-size:13px}.date-pill{padding:10px 14px;background:#fff;border:1px solid var(--line);border-radius:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}.stat-card{position:relative;overflow:hidden;min-height:175px;padding:19px;border:1px solid #ffffffd9;border-radius:20px;box-shadow:var(--shadow);transition:.22s}.stat-card:hover{transform:translateY(-4px);box-shadow:0 17px 36px #43476924}.stat-card:nth-child(1){background:linear-gradient(135deg,#eee7ff,#faf8ff)}.stat-card:nth-child(2){background:linear-gradient(135deg,#dff5ea,#f5fff9)}.stat-card:nth-child(3){background:linear-gradient(135deg,#e3efff,#f7fbff)}.stat-card:nth-child(4){background:linear-gradient(135deg,#ffe9dc,#fff9f5)}.stat-card:after{content:"";position:absolute;width:110px;height:110px;right:-38px;bottom:-48px;border-radius:50%;background:#ffffff70}.stat-top,.stat-foot{display:flex;justify-content:space-between;align-items:center}.stat-top{color:#646b7f;font-size:13px;font-weight:700}.stat-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:#ffffffb8;font-size:19px;box-shadow:0 6px 14px #43476912}.stat-value{margin:14px 0 3px;font-size:32px;font-weight:850}.stat-note,.stat-foot{color:var(--muted);font-size:11px}.track{height:7px;margin-top:14px;border-radius:99px;background:#ffffffc4;overflow:hidden}.fill{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#777bdd,#ad91e6)}.stat-foot{margin-top:7px}.grid-two{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-bottom:22px}.panel{padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.panel h2{font-size:17px;margin-bottom:16px}.employee-row{display:grid;grid-template-columns:1.6fr .9fr .9fr .6fr;gap:12px;align-items:center;padding:13px 7px;border-top:1px solid var(--line);font-size:13px}.employee-row.header{border:0;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase}.person{display:flex;align-items:center;gap:10px}.avatar{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#eee7ff;color:#6a5aa8;font-weight:800;font-size:12px}.person strong,.person small{display:block}.person small{color:var(--muted)}.badge{display:inline-flex;width:max-content;padding:5px 9px;border-radius:99px;font-size:11px;font-weight:750}.available{background:#e2f7ea;color:#397a52}.partial{background:#fff2cf;color:#957425}.allocated{background:#e7edff;color:#5267a6}.skill-item{margin-bottom:14px}.skill-name{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px}.bar{height:7px;border-radius:99px;background:#eff0f5;overflow:hidden}.bar span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#888bdf,#b7a1eb)}.project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.project-card{padding:18px;border:1px solid var(--line);border-radius:17px;background:#fff}.project-card h3{font-size:15px;margin:12px 0 6px}.project-card p,.project-meta{color:var(--muted);font-size:12px}.project-meta{display:flex;justify-content:space-between;margin-top:11px}.empty{padding:20px;text-align:center;color:var(--muted);font-size:13px}@media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.grid-two{grid-template-columns:1fr}.project-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){:root{--side-w:78px}.sidebar{padding:20px 10px}.role-label,.nav-text{display:none}.nav-item{justify-content:center;padding:13px 8px}main{padding:92px 18px 30px}.stats,.project-grid{grid-template-columns:1fr}.date-pill{display:none}.topbar{padding:0 16px}}
+</style>
 </head>
 <body>
-  <!-- ===== TOPBAR ===== -->
-  <header class="topbar">
-    <div class="brand"><span class="brand-mark">IC</span><span>IntelliCrew</span></div>
-    <div class="top-profile">
-      <div class="avatar">{{ manager_initials | default("MG") }}</div>
-      <div><strong>{{ manager_name | default("Manager") }}</strong><span>Manager</span></div>
-    </div>
-  </header>
-
-  <!-- ===== SIDEBAR (matches home: Home / Dashboard / Create Requirement) ===== -->
-  <aside class="sidebar">
-    <p class="role-label">Manager Portal</p>
-    <nav class="nav-list">
-      <!-- Home -> back to portal -->
-      <button class="nav-item" type="button" onclick="location.href='/home'">
-        <span class="nav-icon" aria-hidden="true">H</span>
-        <span class="nav-text">Home</span>
-      </button>
-
-      <!-- Dashboard (current page) -->
-      <button class="nav-item active" type="button">
-        <span class="nav-icon" aria-hidden="true">D</span>
-        <span class="nav-text">Dashboard</span>
-      </button>
-
-      <!-- Create Requirement -> home page, auto-opens the section -->
-      <button class="nav-item" type="button" onclick="location.href='/home#requirementContent'">
-        <span class="nav-icon" aria-hidden="true">+</span>
-        <span class="nav-text">Create Requirement</span>
-      </button>
-    </nav>
-  </aside>
-
-  <!-- ===== MAIN / OVERVIEW ===== -->
-  <main>
-    <div class="page-head">
-      <div>
-        <h1>Welcome, {{ manager_name | default("Manager") }}</h1>
-        <p class="subtitle">Here is a quick view of your team and projects today.</p>
-      </div>
-      <div class="date-pill">{{ today | default("Today") }}</div>
-    </div>
-
-    <!-- STAT CARDS -->
-    <div class="stats">
-      <article class="stat-card">
-        <div class="stat-top"><span>Team Members</span><span class="stat-icon">♙</span></div>
-        <div class="stat-value">{{ stats.total_employees | default(0) }}</div>
-        <div class="stat-note">{{ stats.active_employees | default(0) }} active employees</div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-top"><span>Employees on Bench</span><span class="stat-icon">◷</span></div>
-        <div class="stat-value">{{ stats.on_bench | default(0) }}</div>
-        <div class="stat-note">Available for allocation</div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-top"><span>Active Projects</span><span class="stat-icon">▦</span></div>
-        <div class="stat-value">{{ stats.active_projects | default(0) }}</div>
-        <div class="stat-note">{{ stats.planned_projects | default(0) }} projects planned</div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-top"><span>Total Skills</span><span class="stat-icon">◇</span></div>
-        <div class="stat-value">{{ stats.total_skills | default(0) }}</div>
-        <div class="stat-note">Across your team</div>
-      </article>
-    </div>
-
-    <!-- BENCH + SKILLS -->
-    <div class="grid-two">
-      <section class="panel">
-        <div class="panel-head"><h2>Employees on Bench</h2></div>
-        <div class="employee-row header">
-          <span>Employee</span><span>Department</span><span>Availability</span><span>Exp</span>
-        </div>
-        {% for e in bench_employees | default([]) %}
-        <div class="employee-row">
-          <div class="person">
-            <div class="avatar">{{ e.initials }}</div>
-            <div><strong>{{ e.full_name }}</strong><small>{{ e.employee_id }}</small></div>
-          </div>
-          <span>{{ e.department }}</span>
-          {% if e.availability == 'Available' %}
-            <span class="badge available">Available</span>
-          {% elif e.availability == 'Partial' %}
-            <span class="badge partial">{{ e.allocation_percent }}% allocated</span>
-          {% else %}
-            <span class="badge allocated">Allocated</span>
-          {% endif %}
-          <span>{{ e.experience }} yrs</span>
-        </div>
-        {% else %}
-        <div class="empty">No bench employees found.</div>
-        {% endfor %}
-      </section>
-
-      <section class="panel">
-        <div class="panel-head"><h2>Top Team Skills</h2></div>
-        <div class="skill-list">
-          {% for s in top_skills | default([]) %}
-          <div class="skill-item">
-            <div class="skill-name"><span>{{ s.skill_name }}</span><span>{{ s.count }} employees</span></div>
-            <div class="bar"><span style="width: {{ s.percent | default(0) }}%"></span></div>
-          </div>
-          {% else %}
-          <div class="empty">No skill data available.</div>
-          {% endfor %}
-        </div>
-      </section>
-    </div>
-
-    <!-- ACTIVE PROJECTS -->
-    <section class="panel">
-      <div class="panel-head"><h2>Active Projects</h2></div>
-      <div class="project-grid">
-        {% for p in projects | default([]) %}
-          {% if p.status == 'In Progress' %}
-            {% set badge_class = 'available' %}
-          {% elif p.status == 'Planned' %}
-            {% set badge_class = 'partial' %}
-          {% else %}
-            {% set badge_class = 'allocated' %}
-          {% endif %}
-          <article class="project-card">
-            <span class="badge {{ badge_class }}">{{ p.status }}</span>
-            <h3>{{ p.project_name }}</h3>
-            <p>{{ p.client }}</p>
-            <p>{{ p.required_skills }}</p>
-            <div class="project-meta">
-              <span>{{ p.allocated_count | default(0) }} allocated</span>
-              <span>{{ p.end_date }}</span>
-            </div>
-          </article>
-        {% else %}
-          <div class="empty">No active projects found.</div>
-        {% endfor %}
-      </div>
-    </section>
-  </main>
+<header class="topbar"><div class="brand"><span class="brand-mark">IC</span><span>IntelliCrew</span></div><button id="logoutButton" class="logout"><span id="logoutButtonText">Logout</span></button></header>
+<aside class="sidebar"><p class="role-label">Manager Portal</p><nav class="nav-list">
+<button class="nav-item" onclick="location.href='/home'"><span class="nav-icon">H</span><span class="nav-text">Home</span></button>
+<button class="nav-item active" onclick="location.href='/manager/dashboard'"><span class="nav-icon">D</span><span class="nav-text">Dashboard</span></button>
+<button class="nav-item" onclick="location.href='/home#requirementContent'"><span class="nav-icon">+</span><span class="nav-text">Create Requirement</span></button>
+<button class="nav-item" onclick="location.href='/home#summarizerContent'"><span class="nav-icon">V</span><span class="nav-text">Video Summarizer</span></button>
+</nav></aside>
+<main>
+<div class="page-head"><div><h1>Welcome, {{ manager_name|default('Manager') }}</h1><p class="subtitle">Here is a quick view of your team and projects today.</p></div><span class="date-pill">{{ today|default('Today') }}</span></div>
+<div class="stats">
+<article class="stat-card"><div class="stat-top"><span>Team Members</span><span class="stat-icon">👥</span></div><div class="stat-value">{{ stats.total_employees|default(0) }}</div><div class="stat-note">{{ stats.active_employees|default(0) }} active employees</div><div class="track"><span class="fill" style="width:82%"></span></div><div class="stat-foot"><span>Team strength</span><b>82%</b></div></article>
+<article class="stat-card"><div class="stat-top"><span>Employees on Bench</span><span class="stat-icon">🧑‍💻</span></div><div class="stat-value">{{ stats.on_bench|default(0) }}</div><div class="stat-note">Available for allocation</div><div class="track"><span class="fill" style="width:58%"></span></div><div class="stat-foot"><span>Availability</span><b>58%</b></div></article>
+<article class="stat-card"><div class="stat-top"><span>Active Projects</span><span class="stat-icon">📊</span></div><div class="stat-value">{{ stats.active_projects|default(0) }}</div><div class="stat-note">{{ stats.planned_projects|default(0) }} projects planned</div><div class="track"><span class="fill" style="width:74%"></span></div><div class="stat-foot"><span>Project activity</span><b>74%</b></div></article>
+<article class="stat-card"><div class="stat-top"><span>Total Skills</span><span class="stat-icon">✦</span></div><div class="stat-value">{{ stats.total_skills|default(0) }}</div><div class="stat-note">Across your team</div><div class="track"><span class="fill" style="width:68%"></span></div><div class="stat-foot"><span>Skill coverage</span><b>68%</b></div></article>
+</div>
+<div class="grid-two"><section class="panel"><h2>Employees on Bench</h2><div class="employee-row header"><span>Employee</span><span>Department</span><span>Availability</span><span>Exp</span></div>{% for e in bench_employees|default([]) %}<div class="employee-row"><div class="person"><span class="avatar">{{ e.initials }}</span><div><strong>{{ e.full_name }}</strong><small>{{ e.employee_id }}</small></div></div><span>{{ e.department }}</span><span class="badge {% if e.availability=='Available' %}available{% elif e.availability=='Partial' %}partial{% else %}allocated{% endif %}">{{ e.availability }}</span><span>{{ e.experience }} yrs</span></div>{% else %}<div class="empty">No bench employees found.</div>{% endfor %}</section>
+<section class="panel"><h2>Top Team Skills</h2>{% for s in top_skills|default([]) %}<div class="skill-item"><div class="skill-name"><span>{{ s.skill_name }}</span><span>{{ s.count }} employees</span></div><div class="bar"><span style="width:{{ s.percent|default(0) }}%"></span></div></div>{% else %}<div class="empty">No skill data available.</div>{% endfor %}</section></div>
+<section class="panel"><h2>Active Projects</h2><div class="project-grid">{% for p in projects|default([]) %}<article class="project-card"><span class="badge {% if p.status=='In Progress' %}available{% elif p.status=='Planned' %}partial{% else %}allocated{% endif %}">{{ p.status }}</span><h3>{{ p.project_name }}</h3><p>{{ p.client }}</p><p>{{ p.required_skills }}</p><div class="project-meta"><span>{{ p.allocated_count|default(0) }} allocated</span><span>{{ p.end_date }}</span></div></article>{% else %}<div class="empty">No active projects found.</div>{% endfor %}</div></section>
+</main>
+<script>
+const b=document.getElementById('logoutButton'),t=document.getElementById('logoutButtonText');b.onclick=async()=>{b.disabled=true;t.textContent='Logging out...';try{const r=await fetch('/api/logout',{method:'POST',credentials:'same-origin'}),d=await r.json().catch(()=>({}));location.replace(d.redirect_url||'/')}catch{location.replace('/')}};</script>
 </body>
 </html>
