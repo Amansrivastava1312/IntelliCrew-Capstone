@@ -3,6 +3,48 @@
 <!-- PDF library for downloading the report -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+<!-- ===== Centralized organization report button (top-right, direct PDF) ===== -->
+<button id="downloadCentralReportBtn" class="central-report-btn" type="button">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+    <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span id="centralReportBtnText">Download Report</span>
+</button>
+
+<!-- ===== Decorative background (LIGHT theme) — separate big dark graph + document ===== -->
+<div class="req-bg" aria-hidden="true">
+  <div class="req-bg-gradient"></div>
+
+  <!-- BIG market-trend graph — right middle, nudged up -->
+  <div class="req-bg-graph">
+    <svg viewBox="0 0 320 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 24 V180 H300" stroke="#2f3550" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="66"  y="138" width="30" height="42"  rx="5" fill="#3a4573"/>
+      <rect x="112" y="106" width="30" height="74"  rx="5" fill="#414f86"/>
+      <rect x="158" y="76"  width="30" height="104" rx="5" fill="#2f6d51"/>
+      <rect x="204" y="44"  width="30" height="136" rx="5" fill="#357a5b"/>
+      <path d="M72 124 L124 92 L170 62 L240 22" stroke="#243b31" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M240 22 L216 26 M240 22 L236 46" stroke="#243b31" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <!-- BIG Word-style document — right side, nudged down -->
+  <div class="req-bg-doc">
+    <svg viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="16" width="164" height="216" rx="16" fill="#2c3350" stroke="#1e2439" stroke-width="4"/>
+      <path d="M150 16 L182 48 H150 Z" fill="#1e2439"/>
+      <rect x="40" y="46" width="46" height="46" rx="8" fill="#2b579a"/>
+      <text x="63" y="79" text-anchor="middle" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#ffffff">W</text>
+      <rect x="94" y="60" width="72" height="12" rx="6" fill="#8ea0c8"/>
+      <rect x="40" y="116" width="122" height="10" rx="5" fill="#59648a"/>
+      <rect x="40" y="142" width="122" height="10" rx="5" fill="#59648a"/>
+      <rect x="40" y="168" width="100" height="10" rx="5" fill="#48527a"/>
+      <rect x="40" y="194" width="122" height="10" rx="5" fill="#59648a"/>
+      <rect x="40" y="220" width="80"  height="10" rx="5" fill="#48527a"/>
+    </svg>
+  </div>
+</div>
+
 <div class="page-head">
   <h1>Create Requirement</h1>
   <p class="subtitle">Select a project to view its required skills and find matching employees.</p>
@@ -78,6 +120,73 @@
 </div>
 
 <style>
+  /* ===== Centralized report button (top-right) ===== */
+  .central-report-btn {
+    position: fixed;
+    top: 84px;
+    right: 26px;
+    z-index: 60;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    border: 0; border-radius: 12px;
+    background: linear-gradient(135deg, #777bdd, #9b86df);
+    color: #fff; font-weight: 700; font-size: 13px;
+    box-shadow: 0 10px 24px rgba(111,115,210,.32);
+    cursor: pointer; transition: .2s ease;
+  }
+  .central-report-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(111,115,210,.4); }
+  .central-report-btn:disabled { opacity: .6; cursor: not-allowed; }
+  .central-report-btn svg { width: 16px; height: 16px; }
+
+  /* ===== Decorative background (LIGHT theme) ===== */
+  .req-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .req-bg-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(119,112,219,.10), transparent 42%),
+      radial-gradient(circle at 88% 12%, rgba(129,199,164,.10), transparent 40%),
+      radial-gradient(circle at 78% 82%, rgba(119,112,219,.08), transparent 45%),
+      radial-gradient(circle at 20% 88%, rgba(200,180,255,.10), transparent 42%);
+  }
+  .req-bg-graph {
+    position: absolute;
+    top: 34%;
+    right: 12%;
+    transform: translateY(-50%);
+    width: min(38vw, 460px);
+    opacity: .18;
+    animation: artFloat 14s ease-in-out infinite;
+  }
+  .req-bg-doc {
+    position: absolute;
+    top: 66%;
+    right: 18%;
+    transform: translateY(-50%);
+    width: min(26vw, 320px);
+    opacity: .18;
+    animation: artFloat 17s ease-in-out infinite reverse;
+  }
+  .req-bg-graph svg,
+  .req-bg-doc svg { width: 100%; height: auto; display: block; }
+  @keyframes artFloat {
+    0%, 100% { transform: translateY(-50%); }
+    50%      { transform: translateY(calc(-50% - 16px)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .req-bg-graph, .req-bg-doc { animation: none !important; }
+  }
+
+  .page-head,
+  .requirement-layout { position: relative; z-index: 1; }
+
+  /* ===== Layout ===== */
   .requirement-layout {
     display: grid;
     grid-template-columns: minmax(360px, 0.8fr) minmax(520px, 1.2fr);
@@ -88,6 +197,12 @@
   .requirement-left { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
   .match-results { min-width: 0; }
   .requirement-form, .match-results { margin: 0; }
+
+  .requirement-form, .match-results, .skill-gap-report-card {
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(2px);
+  }
+
   .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
   .skill-tag {
     padding: 6px 12px; border: 1px solid #ddd8f7; border-radius: 999px;
@@ -148,6 +263,7 @@
   .report-content ul { margin: 0 0 4px; padding-left: 20px; }
   .report-content li { margin: 0 0 8px; }
   .report-content li:last-child { margin-bottom: 0; }
+  .report-content p, .report-content li { break-inside: avoid; }
   .report-note { margin: 18px 0 0; padding: 11px 13px; border-left: 3px solid #7770db; border-radius: 0 8px 8px 0; background: #f3f1ff; color: #5f6474; font-size: 12px; line-height: 1.5; }
 
   .completion-popup[hidden] { display: none; }
@@ -159,11 +275,19 @@
   .completion-popup-card p { margin: 0 0 22px; color: #5f6474; line-height: 1.55; }
   .completion-popup-card .primary { width: 100%; }
 
-  @media (max-width: 1050px) { .requirement-layout { grid-template-columns: 1fr; } }
+  @media (max-width: 1050px) {
+    .requirement-layout { grid-template-columns: 1fr; }
+    .req-bg-graph { right: 6%; width: 46vw; opacity: .12; }
+    .req-bg-doc   { right: 8%; width: 34vw; opacity: .12; }
+  }
   @media (max-width: 650px) {
     .employee-match { grid-template-columns: 1fr; }
     .select-employee-button { width: 100%; }
     .save-area { align-items: stretch; flex-direction: column; }
+    .req-bg-graph { top: 22%; right: 4%; width: 60vw; opacity: .10; }
+    .req-bg-doc   { top: 78%; right: 6%; width: 46vw; opacity: .10; }
+    .central-report-btn span { display: none; }
+    .central-report-btn { top: 78px; right: 14px; padding: 10px; }
   }
 </style>
 
@@ -190,11 +314,41 @@
   const completionMessage = document.getElementById("completionMessage");
   const completionOkButton = document.getElementById("completionOkButton");
 
+  // centralized report button
+  const centralBtn = document.getElementById("downloadCentralReportBtn");
+  const centralBtnText = document.getElementById("centralReportBtnText");
+
   let projectsCache = [];
   let selectedProject = null;
   let selectedSkills = [];
   let matchingEmployees = [];
   const selectedEmployeeIds = new Set();
+
+  // ---------- centralized organization report (direct PDF download) ----------
+  centralBtn.addEventListener("click", async () => {
+    centralBtn.disabled = true;
+    centralBtnText.textContent = "Generating...";
+    try {
+      const response = await fetch("/api/centralized-report", { credentials: "same-origin" });
+      if (!response.ok) throw new Error("Report generation failed.");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "intellicrew_report.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Central report download failed:", error);
+      alert("Could not generate the report. Please try again.");
+    } finally {
+      centralBtn.disabled = false;
+      centralBtnText.textContent = "Download Report";
+    }
+  });
 
   async function loadProjects() {
     try {
@@ -301,8 +455,7 @@
     skillGapReportCard.hidden = false;
   }
 
-  // ---------- download the report as a PDF (client-side) ----------
-    // ---------- download the report as a PDF (client-side) ----------
+  // ---------- download the single-project report as a PDF (client-side) ----------
   downloadReportButton.addEventListener("click", async () => {
     const reportElement = skillGapReportCard;
 
@@ -318,13 +471,12 @@
         scale: 2,
         useCORS: true,
         scrollX: 0,
-        scrollY: -window.scrollY,   // ONLY this offset — don't set windowHeight
+        scrollY: -window.scrollY,
       },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       pagebreak: { mode: ["css", "legacy"] },
     };
 
-    // Hide the button so it isn't captured
     downloadReportButton.style.visibility = "hidden";
 
     try {
@@ -347,7 +499,6 @@
       return;
     }
 
-    // Ensure correct ranking order regardless of backend order.
     const ordered = [...employees].sort((a, b) => Number(a.rank) - Number(b.rank));
 
     ordered.forEach((employee) => {

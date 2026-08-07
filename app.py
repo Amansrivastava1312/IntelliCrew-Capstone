@@ -404,11 +404,7 @@ def api_project_allocations(
 
     session = require_session(sid)
 
-    if session["role"] != "MANAGER":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only managers can save project allocations.",
-        )
+    
 
     try:
         result = save_project_allocations(
@@ -431,3 +427,25 @@ def api_project_allocations(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unable to save project allocations: {str(error)}",
         )
+        
+        
+        
+from fastapi import Response
+from report_agent.report_graph import run_report_agent
+
+
+# ---------- centralized organization report (any logged-in user) ----------
+@app.get("/api/centralized-report")
+def api_centralized_report(sid: str | None = Cookie(None, alias=COOKIE)):
+    """Generate the org-wide report via the LangGraph report agent and return a PDF."""
+    require_session(sid)
+
+    pdf_bytes = run_report_agent()   # fetch -> narrative -> pdf
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": 'attachment; filename="intellicrew_report.pdf"'
+        },
+    )
