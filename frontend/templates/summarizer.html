@@ -12,11 +12,82 @@
     --error: #c06c84;
 }
 
-.page-title { text-align: center; font-size: 30px; color: var(--text); margin-bottom: 10px; }
-.page-sub   { text-align: center; color: var(--muted); margin-bottom: 30px; }
+/* ===== soft decorative blobs so the empty background isn't plain white ===== */
+.sum-wrap { position: relative; overflow: hidden; padding: 6px 0 10px; }
+.sum-wrap::before,
+.sum-wrap::after {
+    content: ""; position: absolute; border-radius: 50%;
+    filter: blur(70px); opacity: .55; z-index: 0; pointer-events: none;
+}
+.sum-wrap::before {
+    width: 340px; height: 340px; top: -80px; left: -90px;
+    background: radial-gradient(circle, #e5d9f7 0%, transparent 70%);
+}
+.sum-wrap::after {
+    width: 380px; height: 380px; bottom: -120px; right: -100px;
+    background: radial-gradient(circle, #dbe9f7 0%, transparent 70%);
+}
+
+.page-title { text-align: center; font-size: 28px; color: var(--text); margin: 4px 0 6px; position: relative; z-index: 1; }
+.page-sub   { text-align: center; color: var(--muted); margin: 0 0 18px; position: relative; z-index: 1; }
+
+/* ===== two-column layout: info panel + upload form (fills the full width) ===== */
+.sum-layout {
+    display: flex; gap: 24px; align-items: stretch;
+    width: 100%; max-width: none; margin: 0;      /* fill the whole content area, no side gaps */
+    position: relative; z-index: 1;
+}
+.sum-layout .card { margin: 0; flex: 1 1 auto; max-width: none; }   /* form stretches to fill remaining width */
+
+/* left info / helper panel */
+.info-panel {
+    flex: 0 0 340px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 24px; box-shadow: 0 10px 40px rgba(94,75,128,.08);
+    padding: 26px 26px; display: flex; flex-direction: column; gap: 20px;
+    justify-content: center;   /* vertically center content so tall panel isn't sparse */
+}
+.info-panel h3 {
+    margin: 0 0 4px; font-size: 15px; letter-spacing: .3px;
+    text-transform: uppercase; color: var(--primary-hover);
+}
+
+/* how-it-works steps */
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.step { display: flex; gap: 14px; align-items: flex-start; }
+.step-num {
+    flex: 0 0 32px; height: 32px; border-radius: 50%;
+    background: var(--primary-light); color: var(--primary-hover);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+}
+.step-txt { color: var(--text); font-size: 14.5px; line-height: 1.5; }
+.step-txt small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+
+/* supported formats chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+    padding: 6px 13px; border-radius: 20px; font-size: 12.5px; font-weight: 600;
+    background: #fcfbff; border: 1px solid var(--line); color: var(--muted);
+}
+
+/* tip box */
+.tip {
+    background: var(--primary-light); border: 1px solid var(--primary);
+    border-radius: 14px; padding: 14px 16px;
+    font-size: 13.5px; color: var(--text); line-height: 1.55;
+}
+.tip b { color: var(--primary-hover); }
+
+/* collapse to single column on small screens */
+@media (max-width: 900px) {
+    .sum-layout { flex-direction: column; width: 94%; }
+    .info-panel { flex: 1 1 auto; order: 2; }
+    .sum-layout .card { order: 1; }
+}
 
 .card {
-    max-width: 750px; margin: 0 auto; padding: 35px;
+    max-width: 750px; margin: 0 auto; padding: 30px;
     background: var(--surface); border: 1px solid var(--line);
     border-radius: 24px; box-shadow: 0 10px 40px rgba(94,75,128,.08);
     position: relative;
@@ -40,7 +111,7 @@
 
 /* upload box */
 .upload-box {
-    border: 2px dashed #d7caec; border-radius: 20px; min-height: 200px;
+    border: 2px dashed #d7caec; border-radius: 20px; min-height: 180px;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     cursor: pointer; background: #fcfbff; transition: .25s; text-align: center;
 }
@@ -117,54 +188,106 @@ input[type="file"] { display: none; }
 }
 </style>
 
-<h1 class="page-title">🎬 Video Summarizer</h1>
-<p class="page-sub">Upload a video or paste a link — the agent transcribes and summarizes it.</p>
+<div class="sum-wrap">
 
-<!-- ============ SCREEN 1: UPLOAD FORM (normal width) ============ -->
-<form id="summaryForm" class="card">
+    <h1 class="page-title">🎬 Video Summarizer</h1>
+    <p class="page-sub">Upload a video or paste a link — the agent transcribes and summarizes it.</p>
 
-    <!-- loader -->
-    <div id="sumOverlay" class="overlay" hidden>
-        <div class="spinner"></div>
-        <p id="sumOverlayText">Summarizing... this can take a while on CPU</p>
+    <!-- ============ SCREEN 1: INFO PANEL + UPLOAD FORM (fills side space) ============ -->
+    <div class="sum-layout" id="sumLayout">
+
+        <!-- LEFT: helper / info panel (purely decorative + informative, no JS hooks) -->
+        <aside class="info-panel">
+            <div>
+                <h3>How it works</h3>
+                <ul class="steps">
+                    <li class="step">
+                        <span class="step-num">1</span>
+                        <span class="step-txt">Add your video
+                            <small>Upload a file or paste a video link</small>
+                        </span>
+                    </li>
+                    <li class="step">
+                        <span class="step-num">2</span>
+                        <span class="step-txt">Agent transcribes it
+                            <small>Speech is converted to text automatically</small>
+                        </span>
+                    </li>
+                    <li class="step">
+                        <span class="step-num">3</span>
+                        <span class="step-txt">Get a clean summary
+                            <small>Key points extracted for a quick read</small>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <h3>Supported formats</h3>
+                <div class="chips">
+                    <span class="chip">.mp4</span>
+                    <span class="chip">.mkv</span>
+                    <span class="chip">.avi</span>
+                    <span class="chip">.mov</span>
+                    <span class="chip">🔗 URL</span>
+                </div>
+            </div>
+
+            <div class="tip">
+                💡 <b>Tip:</b> Shorter clips summarize faster. On CPU, longer videos
+                may take a while — the loader will keep you posted.
+            </div>
+        </aside>
+
+        <!-- RIGHT: upload form (UNCHANGED functionality) -->
+        <form id="summaryForm" class="card">
+
+            <!-- loader -->
+            <div id="sumOverlay" class="overlay" hidden>
+                <div class="spinner"></div>
+                <p id="sumOverlayText">Summarizing... this can take a while on CPU</p>
+            </div>
+
+            <!-- toggle tabs -->
+            <div class="tabs">
+                <div class="tab active" id="sumTabFile">📄 Upload Video</div>
+                <div class="tab" id="sumTabLink">🔗 Paste Link</div>
+            </div>
+
+            <!-- PANE A: file upload -->
+            <div class="pane" id="sumPaneFile">
+                <label id="sumUploadBox" class="upload-box" for="videoFile">
+                    <div class="upload-icon">🎞️</div>
+                    <h3>Upload Video</h3>
+                    <p>Drag & Drop or Click to Browse (.mp4 / .mkv / .avi)</p>
+                    <input type="file" id="videoFile" accept=".mp4,.mkv,.avi,.mov" />
+                </label>
+                <div id="sumFileName" class="file-name"></div>
+            </div>
+
+            <!-- PANE B: link -->
+            <div class="pane" id="sumPaneLink" hidden>
+                <input type="text" id="videoLink" class="link-input"
+                       placeholder="Paste a YouTube or video URL here..." />
+            </div>
+
+            <button id="sumSubmitBtn" class="primary" type="submit">Summarize</button>
+
+            <!-- view previous summary (only shows if one exists) -->
+            <button type="button" id="sumViewPrevBtn" class="ghost-btn" hidden>👁️ View Previous Summary</button>
+        </form>
+
     </div>
 
-    <!-- toggle tabs -->
-    <div class="tabs">
-        <div class="tab active" id="sumTabFile">📄 Upload Video</div>
-        <div class="tab" id="sumTabLink">🔗 Paste Link</div>
+    <!-- ============ SCREEN 2: SUMMARY VIEW (wide) ============ -->
+    <div id="sumView" class="card wide summary-view" hidden>
+        <div class="summary-header">
+            <h2>📝 Summary</h2>
+            <button type="button" id="sumMoreBtn" class="summarize-more">➕ Summarize More</button>
+        </div>
+        <div id="sumResultText" class="summary-text"></div>
     </div>
 
-    <!-- PANE A: file upload -->
-    <div class="pane" id="sumPaneFile">
-        <label id="sumUploadBox" class="upload-box" for="videoFile">
-            <div class="upload-icon">🎞️</div>
-            <h3>Upload Video</h3>
-            <p>Drag & Drop or Click to Browse (.mp4 / .mkv / .avi)</p>
-            <input type="file" id="videoFile" accept=".mp4,.mkv,.avi,.mov" />
-        </label>
-        <div id="sumFileName" class="file-name"></div>
-    </div>
-
-    <!-- PANE B: link -->
-    <div class="pane" id="sumPaneLink" hidden>
-        <input type="text" id="videoLink" class="link-input"
-               placeholder="Paste a YouTube or video URL here..." />
-    </div>
-
-    <button id="sumSubmitBtn" class="primary" type="submit">Summarize</button>
-
-    <!-- view previous summary (only shows if one exists) -->
-    <button type="button" id="sumViewPrevBtn" class="ghost-btn" hidden>👁️ View Previous Summary</button>
-</form>
-
-<!-- ============ SCREEN 2: SUMMARY VIEW (wide) ============ -->
-<div id="sumView" class="card wide summary-view" hidden>
-    <div class="summary-header">
-        <h2>📝 Summary</h2>
-        <button type="button" id="sumMoreBtn" class="summarize-more">➕ Summarize More</button>
-    </div>
-    <div id="sumResultText" class="summary-text"></div>
 </div>
 
 <script>
@@ -189,12 +312,16 @@ if (summaryForm) {
     const resultText  = document.getElementById("sumResultText");
     const moreBtn     = document.getElementById("sumMoreBtn");
 
+    // the whole left-panel + form row (so we can hide it on the summary screen)
+    const sumLayout   = document.getElementById("sumLayout");
+
     let mode = "file";           // "file" or "link"
     let lastSummary = "";        // stores ONLY the latest summary (old gets replaced)
 
     // ---- show the upload form, hide the summary view ----
     function showForm() {
         sumView.hidden = true;
+        if (sumLayout) sumLayout.hidden = false;
         summaryForm.hidden = false;
         viewPrevBtn.hidden = !lastSummary;   // show "view previous" only if we have one
     }
@@ -202,6 +329,7 @@ if (summaryForm) {
     // ---- show the summary view (wide, centered) ----
     function showSummary(text) {
         resultText.textContent = text;
+        if (sumLayout) sumLayout.hidden = true;
         summaryForm.hidden = true;
         sumView.hidden = false;
         window.scrollTo(0, 0);
