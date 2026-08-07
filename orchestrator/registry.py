@@ -1,11 +1,9 @@
-"""Central registry of all agents. Each agent describes WHEN it should fire.
-Add a new agent = add ONE entry here. No other file changes."""
-
 from resume_agent.resume_agent import resume_agent
-from video_summarization.summarize import summarizer_agent   # NEW
+from video_summarization.summarize import summarizer_agent   
 from skill_analyze.matching_agent import matching_agent
+from report_agent.report_graph import report_agent           
 
-# from SkillAgent.skill_agent import skill_agent
+
 
 AGENTS = {
     "resume_agent": {
@@ -19,7 +17,7 @@ AGENTS = {
         "agent": summarizer_agent,
         "description": "Transcribes and summarizes an uploaded video or a video/YouTube link.",
         "keywords": ["video", "summarize video", "youtube", "transcribe", "summary"],
-        "needs_file": False,   
+        "needs_file": False,
     },
 
     "matching_agent": {
@@ -29,11 +27,21 @@ AGENTS = {
             "calculates skill-match percentages, ranks employees, "
             "and generates short ranking descriptions."
         ),
-        "keywords": ["match employees","employee matching","project matching","skill matching","skill gap","rank employees","project requirement","find employees for project",],
+        "keywords": ["match employees", "employee matching", "project matching", "skill matching", "skill gap", "rank employees", "project requirement", "find employees for project"],
         "needs_file": False,
     },
-    
+
+    # NEW: fires on report keywords — builds the org-wide PDF report
+    "report_agent": {
+        "agent": report_agent,
+        "description": (
+            "Generates a centralized organization-wide PDF report "
+            "covering projects, employees, skills, and allocations."
+        ),
+        "keywords": ["centralized report", "generate report", "organization report", "org report", "download report", "overall report", "company report"],
+        "needs_file": False,
+    },
+
 }
 
 DEFAULT_AGENT = "resume_agent"
-

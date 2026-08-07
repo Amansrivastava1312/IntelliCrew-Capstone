@@ -429,18 +429,26 @@ def api_project_allocations(
         )
         
         
-        
 from fastapi import Response
-from report_agent.report_graph import run_report_agent
+
 
 
 # ---------- centralized organization report (any logged-in user) ----------
 @app.get("/api/centralized-report")
 def api_centralized_report(sid: str | None = Cookie(None, alias=COOKIE)):
-    """Generate the org-wide report via the LangGraph report agent and return a PDF."""
+    """Generate the org-wide report through the orchestrator and return a PDF."""
     require_session(sid)
 
-    pdf_bytes = run_report_agent()   # fetch -> narrative -> pdf
+    # route through the orchestrator, just like the other agents
+    state = {"status": "started"}
+    result = orchestrate(state, user_input="generate centralized report", has_file=False)
+
+    pdf_bytes = result.get("pdf_bytes")
+    if not pdf_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unable to generate the centralized report.",
+        )
 
     return Response(
         content=pdf_bytes,
