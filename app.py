@@ -19,7 +19,6 @@ from pydantic import BaseModel, Field
 from security import verify_password
 from fetch_sqlite_data.dashboard_data import get_manager_dashboard,get_hr_dashboard,_initials
 from resume_agent.embed_agent import run_embedding_agent
-from mailAgent.send_agent import run_mail_agent
 
 # --- orchestrator replaces the direct resume_agent import ---
 from orchestrator.orchestrator import run as orchestrate
@@ -438,6 +437,7 @@ class SaveProjectAllocationRequest(BaseModel):
     
 from skill_analyze.allocation_helper import save_project_allocations  
 # ---------- save selected employees to project_allocation (MANAGER only) ----------
+# ---------- save selected employees to project_allocation (MANAGER only) ----------
 @app.post("/api/project-allocations")
 def api_project_allocations(
     payload: SaveProjectAllocationRequest,
@@ -447,16 +447,24 @@ def api_project_allocations(
 
     session = require_session(sid)
 
-    
-
     try:
         result = save_project_allocations(
             project_id=payload.project_id,
             selected_employees=[emp.dict() for emp in payload.employees],
-            manager_name=session["name"],   # ✅ your session stores the name here
+            manager_name=session["name"],
         )
-        # backend step : mail the selected employees
-        mail_summary = run_mail_agent()
+
+        # Backend step: route email sending through the central orchestrator.
+        mail_state = {
+            "status": "started",
+        }
+
+        mail_summary = orchestrate(
+            mail_state,
+            user_input="send project allocation emails",
+            has_file=False,
+        )
+
         return result
 
     except ValueError as error:
@@ -469,8 +477,7 @@ def api_project_allocations(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unable to save project allocations: {str(error)}",
-        )
-        
+        )        
         
 from fastapi import Response
 
